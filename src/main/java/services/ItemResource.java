@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author Ian Warren
  *
  */
-@Path("/shop")
+@Path("/item")
 public class ItemResource {
 	private static final Logger _logger = LoggerFactory.getLogger(ItemResource.class);
 	
