@@ -4,6 +4,8 @@ import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.joda.time.DateTime;
@@ -19,6 +21,8 @@ public class Customer {
 	private String lastName;
 	private Address shippingAddress;
 	private Address billingAddress; 
+	@XmlElementWrapper(name="purchase-history")
+	@XmlElement(name="item")
 	private Set<Item> purchaseHistory;
 	private DateTime joinDate;
 	
