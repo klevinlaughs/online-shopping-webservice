@@ -14,6 +14,18 @@ public class Address {
 	private String country;
 	private String zipCode;
 
+	protected Address() {
+	}
+	
+	public Address(int number, String street, String suburb, String city, String country, String zipCode){
+		this.number = number;
+		this.street = street;
+		this.suburb = suburb;
+		this.city = city;
+		this.country = country;
+		this.zipCode = zipCode;
+	}
+
 	public int getNumber() {
 		return number;
 	}
