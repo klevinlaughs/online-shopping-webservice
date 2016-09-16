@@ -17,6 +17,18 @@ public class Category {
 	private String name;
 	@XmlIDREF
 	private Category parentCategory;
+	
+	protected Category(){
+	}
+	
+	public Category(String name){
+		this.name = name;
+	}
+	
+	public Category(String name, Category parentCategory){
+		this.name = name;
+		this.parentCategory = parentCategory;
+	}
 
 	public Long getId() {
 		return id;
