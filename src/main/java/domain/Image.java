@@ -1,5 +1,8 @@
 package domain;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class Image {
 	
 	private String name;
