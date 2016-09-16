@@ -13,19 +13,19 @@ import java.util.Set;
  *
  */
 @ApplicationPath("/services")
-public class ParoleeApplication extends Application
+public class ShopApplication extends Application
 {
    private Set<Object> singletons = new HashSet<Object>();
    private Set<Class<?>> classes = new HashSet<Class<?>>();
 
-   public ParoleeApplication()
+   public ShopApplication()
    {
 	  // Register the ParoleeResource singleton to handle HTTP requests.
 	  ShopResource resource = new ShopResource();
       singletons.add(resource);
       
       // Register the ContextResolver class for JAXB.
-      classes.add(ParoleeResolver.class);
+      classes.add(ShopResolver.class);
    }
 
    @Override

@@ -7,7 +7,7 @@ import javax.xml.bind.JAXBException;
 import domain.*;
 
 /**
- * Adapted from the original
+ * Adapted from the ParoleeResolver from parolee-dto
  * 
  * 
  * ContextResolver implementation to return a customised JAXBContext for the
@@ -25,10 +25,10 @@ import domain.*;
  * @author Ian Warren
  *
  */
-public class ParoleeResolver implements ContextResolver<JAXBContext> {
+public class ShopResolver implements ContextResolver<JAXBContext> {
 	private JAXBContext _context;
 
-	public ParoleeResolver() {
+	public ShopResolver() {
 		try {
 			// The JAXB Context should be able to marshal and unmarshal the
 			// specified classes.
