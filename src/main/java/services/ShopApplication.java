@@ -7,9 +7,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Application subclass for the Parolee Web service.
+ * Application subclass for the online shopping webservice
  * 
- * @author Ian Warren
+ * @author Kelvin Lau
  *
  */
 @ApplicationPath("/services")
