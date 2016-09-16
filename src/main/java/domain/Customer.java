@@ -2,9 +2,17 @@ package domain;
 
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.joda.time.DateTime;
 
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Customer {
+	
+	private Long id;
 	
 	private String userName;
 	private String firstName;
@@ -14,6 +22,12 @@ public class Customer {
 	private Set<Item> purchaseHistory;
 	private DateTime joinDate;
 	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
 	public String getUserName() {
 		return userName;
 	}
