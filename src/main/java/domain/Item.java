@@ -42,7 +42,12 @@ public class Item {
 		this.images = images;
 	}
 	
+	/**
+	 * Gets the rating for an item
+	 * @return
+	 */
 	public double getRating(){
+		// TODO
 		return 0.0;
 	}
 	
