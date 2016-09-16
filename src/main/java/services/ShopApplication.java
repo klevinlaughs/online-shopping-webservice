@@ -13,30 +13,24 @@ import java.util.Set;
  *
  */
 @ApplicationPath("/services")
-public class ShopApplication extends Application
-{
-   private Set<Object> singletons = new HashSet<Object>();
-   private Set<Class<?>> classes = new HashSet<Class<?>>();
+public class ShopApplication extends Application {
+	private Set<Object> singletons = new HashSet<Object>();
+	private Set<Class<?>> classes = new HashSet<Class<?>>();
 
-   public ShopApplication()
-   {
-	  // Register the ParoleeResource singleton to handle HTTP requests.
-	  ItemResource resource = new ItemResource();
-      singletons.add(resource);
-      
-      // Register the ContextResolver class for JAXB.
-      classes.add(ShopResolver.class);
-   }
+	public ShopApplication() {
+		singletons.add(new ItemResource());
 
-   @Override
-   public Set<Object> getSingletons()
-   {
-      return singletons;
-   }
-   
-   @Override
-   public Set<Class<?>> getClasses()
-   {
-      return classes;
-   }
+		// Register the ContextResolver class for JAXB.
+		classes.add(ShopResolver.class);
+	}
+
+	@Override
+	public Set<Object> getSingletons() {
+		return singletons;
+	}
+
+	@Override
+	public Set<Class<?>> getClasses() {
+		return classes;
+	}
 }
