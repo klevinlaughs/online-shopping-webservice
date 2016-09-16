@@ -63,5 +63,5 @@ public class Item {
 		// TODO
 		return 0.0;
 	}
-	
+
 }
