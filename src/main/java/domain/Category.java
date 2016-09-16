@@ -17,15 +17,15 @@ public class Category {
 	private String name;
 	@XmlIDREF
 	private Category parentCategory;
-	
-	protected Category(){
+
+	protected Category() {
 	}
-	
-	public Category(String name){
+
+	public Category(String name) {
 		this.name = name;
 	}
-	
-	public Category(String name, Category parentCategory){
+
+	public Category(String name, Category parentCategory) {
 		this.name = name;
 		this.parentCategory = parentCategory;
 	}

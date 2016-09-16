@@ -26,11 +26,11 @@ public class Customer {
 	private Set<Item> purchaseHistory;
 	private DateTime joinDate;
 	private Image profilePic;
-	
-	protected Customer(){
+
+	protected Customer() {
 	}
-	
-	public Customer(String userName){
+
+	public Customer(String userName) {
 		this.userName = userName;
 		joinDate = new DateTime();
 	}
