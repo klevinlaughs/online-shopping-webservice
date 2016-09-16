@@ -6,6 +6,8 @@ import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
@@ -17,6 +19,8 @@ public class Item {
 	private String name;
 	private Long stockLevel;
 	private BigDecimal price;
+	@XmlElementWrapper(name="Images")
+	@XmlElement(name="Image")
 	private Set<Image> images = new HashSet<Image>();
 	// TODO Category?
 	
