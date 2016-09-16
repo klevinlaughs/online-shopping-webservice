@@ -36,4 +36,8 @@ public class Item {
 		this.images = images;
 	}
 	
+	public double getRating(){
+		return 0.0;
+	}
+	
 }
