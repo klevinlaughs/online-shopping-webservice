@@ -1,7 +1,10 @@
 package domain;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.joda.time.DateTime;
 
+@XmlRootElement
 public class Review {
 	
 	private Customer reviewer;
