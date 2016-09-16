@@ -32,7 +32,7 @@ public class ShopResolver implements ContextResolver<JAXBContext> {
 		try {
 			// The JAXB Context should be able to marshal and unmarshal the
 			// specified classes.
-			_context = JAXBContext.newInstance(Customer.class, Category.class, Item.class, Address.class);
+			_context = JAXBContext.newInstance(Customer.class, Category.class, Item.class, Address.class, Image.class, Review.class);
 		} catch (JAXBException e) {
 			e.printStackTrace();
 		}
@@ -41,7 +41,8 @@ public class ShopResolver implements ContextResolver<JAXBContext> {
 	@Override
 	public JAXBContext getContext(Class<?> type) {
 		if (type.equals(Customer.class) || type.equals(Category.class)
-				|| type.equals(Item.class) || type.equals(Address.class)) {
+				|| type.equals(Item.class) || type.equals(Address.class)
+				|| type.equals(Image.class) || type.equals(Review.class)) {
 			return _context;
 		} else {
 			return null;
