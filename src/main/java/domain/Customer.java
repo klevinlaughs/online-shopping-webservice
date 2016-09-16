@@ -21,10 +21,11 @@ public class Customer {
 	private String lastName;
 	private Address shippingAddress;
 	private Address billingAddress; 
-	@XmlElementWrapper(name="purchase-history")
-	@XmlElement(name="item")
+	@XmlElementWrapper(name="PurchaseHistory")
+	@XmlElement(name="Item")
 	private Set<Item> purchaseHistory;
 	private DateTime joinDate;
+	// TODO profilepic?
 	
 	public Long getId() {
 		return id;
