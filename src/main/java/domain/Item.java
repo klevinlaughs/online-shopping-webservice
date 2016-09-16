@@ -1,6 +1,7 @@
 package domain;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -16,7 +17,7 @@ public class Item {
 	private String name;
 	private Long stockLevel;
 	private BigDecimal price;
-	private Set<Image> images;
+	private Set<Image> images = new HashSet<Image>();
 	// TODO Category?
 	
 	public Long getId() {
