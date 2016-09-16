@@ -40,142 +40,164 @@ import org.slf4j.LoggerFactory;
  */
 @Path("/item")
 public class ItemResource {
-	private static final Logger _logger = LoggerFactory.getLogger(ItemResource.class);
-	
+	private static final Logger _logger = LoggerFactory
+			.getLogger(ItemResource.class);
+
 	public ItemResource() {
 		reloadDatabase();
 	}
 
 	/**
-    * Convenience method for testing the Web service. This method reinitialises 
-    * the state of the Web service to hols three Parolee objects.
-    */
+	 * Convenience method for testing the Web service. This method reinitialises
+	 * the state of the Web service to holds three Parolee objects.
+	 */
 	@PUT
 	public void reloadData() {
 		reloadDatabase();
 	}
-	/*
-	*//**
+
+	@GET
+	@Produces("application/xml")
+	public Response getItemsToday(
+			@DefaultValue("1") @QueryParam("start") int start,
+			@DefaultValue("10") @QueryParam("size") int size,
+			@Context UriInfo uriInfo) {
+
+		URI uri = uriInfo.getAbsolutePath();
+
+		Link previous = null;
+		Link next = null;
+
+		ResponseBuilder builder = Response.ok();
+		return builder.build();
+	}
+
+	/**
 	 * Returns a view of the Parolee database, represented as a List of
 	 * nz.ac.auckland.parolee.dto.Parolee objects.
 	 * 
-	 *//*
-	@GET
-	@Produces("application/xml")
-	public Response getParolees(@DefaultValue("1") @QueryParam("start") int start, 
-			@DefaultValue("1") @QueryParam("size")int size,
-			@Context UriInfo uriInfo) {
-		URI uri = uriInfo.getAbsolutePath();
-		
-		Link previous = null;
-		Link next = null;
-		
-		if(start > 1) {
-			// There are previous Parolees - create a previous link.
-			previous = Link.fromUri(uri + "?start={start}&size={size}")
-					.rel("prev")
-					.build(start - 1, size);
-		}
-		if(start + size <= _paroleeDB.size()) {
-			// There are successive parolees - create a next link.
-			_logger.info("Making NEXT link");
-			next = Link.fromUri(uri + "?start={start}&size={size}")
-					.rel("next")
-					.build(start + 1, size);
-		}
+	 */
+	// @GET
+	// @Produces("application/xml")
+	// public Response getParolees(@DefaultValue("1") @QueryParam("start") int
+	// start,
+	// @DefaultValue("1") @QueryParam("size")int size,
+	// @Context UriInfo uriInfo) {
+	// URI uri = uriInfo.getAbsolutePath();
+	//
+	// Link previous = null;
+	// Link next = null;
+	//
+	// if(start > 1) {
+	// // There are previous Parolees - create a previous link.
+	// previous = Link.fromUri(uri + "?start={start}&size={size}")
+	// .rel("prev")
+	// .build(start - 1, size);
+	// }
+	// if(start + size <= _paroleeDB.size()) {
+	// // There are successive parolees - create a next link.
+	// _logger.info("Making NEXT link");
+	// next = Link.fromUri(uri + "?start={start}&size={size}")
+	// .rel("next")
+	// .build(start + 1, size);
+	// }
+	//
+	// // Create list of Parolees to return.
+	// List<nz.ac.auckland.parolee.dto.Parolee> parolees =
+	// new ArrayList<nz.ac.auckland.parolee.dto.Parolee>();
+	// long paroleeId = start;
+	// for(int i = 0; i < size; i++) {
+	// Parolee parolee = _paroleeDB.get(paroleeId);
+	// parolees.add(ParoleeMapper.toDto(parolee));
+	// }
+	//
+	// // Create a GenericEntity to wrap the list of Parolees to return. This
+	// // is necessary to preserve generic type data when using any
+	// // MessageBodyWriter to handle translation to a particular data format.
+	// GenericEntity<List<nz.ac.auckland.parolee.dto.Parolee>> entity =
+	// new GenericEntity<List<nz.ac.auckland.parolee.dto.Parolee>>(parolees) {};
+	//
+	// // Build a Response that contains the list of Parolees plus the link
+	// // headers.
+	// ResponseBuilder builder = Response.ok(entity);
+	// if(previous != null) {
+	// builder.links(previous);
+	// }
+	// if(next != null) {
+	// builder.links(next);
+	// }
+	// Response response = builder.build();
+	//
+	// // Return the custom Response. The JAX-RS run-time will process this,
+	// // extracting the List of Parolee objects and marshalling them into the
+	// // HTTP response message body. In addition, since the Response object
+	// // contains headers (previous and/or next), these will be added to the
+	// // HTTP response message. The Response object was created with the 200
+	// // Ok status code, and this too will be added for the status header.
+	// return response;
+	// }
 
-		// Create list of Parolees to return.
-		List<nz.ac.auckland.parolee.dto.Parolee> parolees = 
-				new ArrayList<nz.ac.auckland.parolee.dto.Parolee>();
-		long paroleeId = start;
-		for(int i = 0; i < size; i++) {
-			Parolee parolee = _paroleeDB.get(paroleeId);
-			parolees.add(ParoleeMapper.toDto(parolee));
-		}
-		
-		// Create a GenericEntity to wrap the list of Parolees to return. This
-		// is necessary to preserve generic type data when using any
-		// MessageBodyWriter to handle translation to a particular data format.
-		GenericEntity<List<nz.ac.auckland.parolee.dto.Parolee>> entity = 
-				new GenericEntity<List<nz.ac.auckland.parolee.dto.Parolee>>(parolees) {};
-		
-		// Build a Response that contains the list of Parolees plus the link 
-		// headers.
- 		ResponseBuilder builder = Response.ok(entity);
- 		if(previous != null) {
- 			builder.links(previous);
- 		}
- 		if(next != null) {
- 			builder.links(next);
- 		}
- 		Response response = builder.build();
- 		
- 		// Return the custom Response. The JAX-RS run-time will process this,
- 		// extracting the List of Parolee objects and marshalling them into the
- 		// HTTP response message body. In addition, since the Response object
- 		// contains headers (previous and/or next), these will be added to the 
- 		// HTTP response message. The Response object was created with the 200
- 		// Ok status code, and this too will be added for the status header.
- 		return response;
-	}*/
-	
-//	protected Parolee findParolee(long id) {
-//		return _paroleeDB.get(id);
-//	}
+	// protected Parolee findParolee(long id) {
+	// return _paroleeDB.get(id);
+	// }
 
-	protected void reloadDatabase() {/*
-		_paroleeDB = new ConcurrentHashMap<Long, Parolee>();
-		_idCounter = new AtomicLong();
-
-		// === Initialise Parolee #1
-		long id = _idCounter.incrementAndGet();
-		Address address = new Address("15", "Bermuda road", "St Johns", "Auckland", "1071");
-		Parolee parolee = new Parolee(id,
-				"Sinnen", 
-				"Oliver", 
-				Gender.MALE,
-				new LocalDate(1970, 5, 26),
-				address,
-				new Curfew(address, new LocalTime(20, 00),new LocalTime(06, 30)));
-		_paroleeDB.put(id, parolee);
-
-		CriminalProfile profile = new CriminalProfile();
-		profile.addConviction(new CriminalProfile.Conviction(new LocalDate(
-				1994, 1, 19), "Crime of passion", Offence.MURDER,
-				Offence.POSSESION_OF_OFFENSIVE_WEAPON));
-		parolee.setCriminalProfile(profile);
-
-		DateTime now = new DateTime();
-		DateTime earlierToday = now.minusHours(1);
-		DateTime yesterday = now.minusDays(1);
-		GeoPosition position = new GeoPosition(-36.852617, 174.769525);
-
-		parolee.addMovement(new Movement(yesterday, position));
-		parolee.addMovement(new Movement(earlierToday, position));
-		parolee.addMovement(new Movement(now, position));
-		
-		// === Initialise Parolee #2
-		id = _idCounter.incrementAndGet();
-		address = new Address("22", "Tarawera Terrace", "St Heliers", "Auckland", "1071");
-		parolee = new Parolee(id,
-				"Watson", 
-				"Catherine", 
-				Gender.FEMALE,
-				new LocalDate(1970, 2, 9),
-				address,
-				null);
-		_paroleeDB.put(id, parolee);
-		
-		// === Initialise Parolee #3
-		id = _idCounter.incrementAndGet();
-		address = new Address("67", "Drayton Gardens", "Oraeki", "Auckland", "1071");
-		parolee = new Parolee(id,
-				"Giacaman", 
-				"Nasser", 
-				Gender.MALE,
-				new LocalDate(1980, 10, 19),
-				address,
-				null);
-		_paroleeDB.put(id, parolee);*/
+	protected void reloadDatabase() {
+		//
+		// _paroleeDB = new ConcurrentHashMap<Long, Parolee>();
+		// _idCounter = new AtomicLong();
+		//
+		// // === Initialise Parolee #1
+		// long id = _idCounter.incrementAndGet();
+		// Address address = new Address("15", "Bermuda road", "St Johns",
+		// "Auckland", "1071");
+		// Parolee parolee = new Parolee(id,
+		// "Sinnen",
+		// "Oliver",
+		// Gender.MALE,
+		// new LocalDate(1970, 5, 26),
+		// address,
+		// new Curfew(address, new LocalTime(20, 00),new LocalTime(06, 30)));
+		// _paroleeDB.put(id, parolee);
+		//
+		// CriminalProfile profile = new CriminalProfile();
+		// profile.addConviction(new CriminalProfile.Conviction(new LocalDate(
+		// 1994, 1, 19), "Crime of passion", Offence.MURDER,
+		// Offence.POSSESION_OF_OFFENSIVE_WEAPON));
+		// parolee.setCriminalProfile(profile);
+		//
+		// DateTime now = new DateTime();
+		// DateTime earlierToday = now.minusHours(1);
+		// DateTime yesterday = now.minusDays(1);
+		// GeoPosition position = new GeoPosition(-36.852617, 174.769525);
+		//
+		// parolee.addMovement(new Movement(yesterday, position));
+		// parolee.addMovement(new Movement(earlierToday, position));
+		// parolee.addMovement(new Movement(now, position));
+		//
+		// // === Initialise Parolee #2
+		// id = _idCounter.incrementAndGet();
+		// address = new Address("22", "Tarawera Terrace", "St Heliers",
+		// "Auckland", "1071");
+		// parolee = new Parolee(id,
+		// "Watson",
+		// "Catherine",
+		// Gender.FEMALE,
+		// new LocalDate(1970, 2, 9),
+		// address,
+		// null);
+		// _paroleeDB.put(id, parolee);
+		//
+		// // === Initialise Parolee #3
+		// id = _idCounter.incrementAndGet();
+		// address = new Address("67", "Drayton Gardens", "Oraeki", "Auckland",
+		// "1071");
+		// parolee = new Parolee(id,
+		// "Giacaman",
+		// "Nasser",
+		// Gender.MALE,
+		// new LocalDate(1980, 10, 19),
+		// address,
+		// null);
+		// _paroleeDB.put(id, parolee);
 	}
 }
