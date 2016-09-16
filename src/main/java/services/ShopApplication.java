@@ -21,7 +21,7 @@ public class ShopApplication extends Application
    public ShopApplication()
    {
 	  // Register the ParoleeResource singleton to handle HTTP requests.
-	  ShopResource resource = new ShopResource();
+	  ItemResource resource = new ItemResource();
       singletons.add(resource);
       
       // Register the ContextResolver class for JAXB.

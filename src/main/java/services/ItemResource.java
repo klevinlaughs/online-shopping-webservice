@@ -39,10 +39,10 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Path("/shop")
-public class ShopResource {
-	private static final Logger _logger = LoggerFactory.getLogger(ShopResource.class);
+public class ItemResource {
+	private static final Logger _logger = LoggerFactory.getLogger(ItemResource.class);
 	
-	public ShopResource() {
+	public ItemResource() {
 		reloadDatabase();
 	}
 
