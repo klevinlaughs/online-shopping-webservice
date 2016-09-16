@@ -26,6 +26,14 @@ public class Customer {
 	private Set<Item> purchaseHistory;
 	private DateTime joinDate;
 	private Image profilePic;
+	
+	protected Customer(){
+	}
+	
+	public Customer(String userName){
+		this.userName = userName;
+		joinDate = new DateTime();
+	}
 
 	public Long getId() {
 		return id;
