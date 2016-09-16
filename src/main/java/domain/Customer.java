@@ -25,8 +25,7 @@ public class Customer {
 	@XmlElement(name = "Item")
 	private Set<Item> purchaseHistory;
 	private DateTime joinDate;
-
-	// TODO profilepic?
+	private Image profilePic;
 
 	public Long getId() {
 		return id;
@@ -90,6 +89,14 @@ public class Customer {
 
 	public void setJoinDate(DateTime joinDate) {
 		this.joinDate = joinDate;
+	}
+
+	public Image getProfilePic() {
+		return profilePic;
+	}
+
+	public void setProfilePic(Image profilePic) {
+		this.profilePic = profilePic;
 	}
 
 }
