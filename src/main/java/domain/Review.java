@@ -12,6 +12,16 @@ public class Review {
 	private Double starRating;
 	private DateTime dateTime;
 
+	protected Review() {
+	}
+
+	public Review(Customer reviewer, Item item, double starRating) {
+		this.reviewer = reviewer;
+		this.item = item;
+		this.starRating = starRating;
+		dateTime = new DateTime();
+	}
+
 	public Customer getReviewer() {
 		return reviewer;
 	}
