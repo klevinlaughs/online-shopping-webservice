@@ -1,5 +1,6 @@
 package domain;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -9,12 +10,44 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 @Embeddable
 public class Address {
+	
+	@Column(nullable = false)
 	private int number;
+	@Column(nullable = false)
 	private String street;
+	@Column(nullable = false)
 	private String suburb;
+	@Column(nullable = false)
 	private String city;
+	@Column(nullable = false)
 	private String country;
+	@Column(nullable = false)
 	private String zipCode;
+
+	/**
+	 * Default constructor needed for persistent classes
+	 */
+	protected Address() {
+	}
+
+	/**
+	 * Initializes all fields
+	 * 
+	 * @param number
+	 * @param street
+	 * @param suburb
+	 * @param city
+	 * @param country
+	 * @param zipCode
+	 */
+	public Address(int number, String street, String suburb, String city, String country, String zipCode) {
+		this.number = number;
+		this.street = street;
+		this.suburb = suburb;
+		this.city = city;
+		this.country = country;
+		this.zipCode = zipCode;
+	}
 
 	public int getNumber() {
 		return number;
