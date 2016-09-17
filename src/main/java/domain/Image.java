@@ -1,8 +1,10 @@
 package domain;
 
+import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
+@Embeddable
 public class Image {
 
 	private String name;
