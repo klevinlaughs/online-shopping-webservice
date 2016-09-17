@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 @Embeddable
 public class Address {
-	
+
 	@Column(nullable = false)
 	private int number;
 	@Column(nullable = false)
