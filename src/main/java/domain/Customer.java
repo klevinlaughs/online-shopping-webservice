@@ -137,11 +137,7 @@ public class Customer {
 	public DateTime getJoinDate() {
 		return joinDate;
 	}
-
-	public void setJoinDate(DateTime joinDate) {
-		this.joinDate = joinDate;
-	}
-
+	
 	public Image getProfilePic() {
 		return profilePic;
 	}
