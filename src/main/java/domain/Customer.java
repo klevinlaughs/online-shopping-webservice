@@ -1,5 +1,6 @@
 package domain;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -38,7 +39,7 @@ public class Customer {
 	@XmlElement(name = "Item")
 	@ElementCollection
 	@OneToMany(fetch = FetchType.LAZY)
-	private Set<Item> purchaseHistory;
+	private Set<Item> purchaseHistory = new HashSet<Item>();
 	private DateTime joinDate;
 	private Image profilePic;
 
@@ -56,6 +57,16 @@ public class Customer {
 	 */
 	public Customer(String userName) {
 		this.userName = userName;
+	}
+
+	/**
+	 * Adds an item to the purchase history
+	 * 
+	 * @param item
+	 *            the item to add
+	 */
+	public void addToPurchaseHistory(Item item) {
+		purchaseHistory.add(item);
 	}
 
 	public Long getId() {
