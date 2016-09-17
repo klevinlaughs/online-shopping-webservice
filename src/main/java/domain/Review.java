@@ -1,16 +1,33 @@
 package domain;
 
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.joda.time.DateTime;
 
 @XmlRootElement
+@Entity
 public class Review {
 
+	@Id
+	private Long id;
+	@ManyToOne(fetch=FetchType.LAZY)
 	private Customer reviewer;
+	@ManyToOne(fetch=FetchType.LAZY)
 	private Item item;
 	private Double starRating;
 	private DateTime dateTime;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	public Customer getReviewer() {
 		return reviewer;
