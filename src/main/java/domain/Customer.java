@@ -3,6 +3,8 @@ package domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -11,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -33,11 +36,20 @@ public class Customer {
 	private String firstName;
 	private String lastName;
 	private Address shippingAddress;
+	@AttributeOverrides({
+		@AttributeOverride(name="number", column=@Column(name="BILLING_NUMBER", nullable=false)),
+		@AttributeOverride(name="street", column=@Column(name="BILLING_STREET", nullable=false)),
+		@AttributeOverride(name="suburb", column=@Column(name="BILLING_SUBURB", nullable=false)),
+		@AttributeOverride(name="city", column=@Column(name="BILLING_CITY", nullable=false)),
+		@AttributeOverride(name="country", column=@Column(name="BILLING_COUNTRY", nullable=false)),
+		@AttributeOverride(name="zipCode", column=@Column(name="BILLING_ZIPCODE", nullable=false))
+	})
 	private Address billingAddress;
 	private CreditCard creditCard;
 	@XmlElementWrapper(name = "PurchaseHistory")
 	@XmlElement(name = "Item")
 	@ElementCollection
+	@OrderColumn
 	@OneToMany(fetch = FetchType.LAZY)
 	private List<Item> purchaseHistory = new ArrayList<Item>();
 	private DateTime joinDate;
