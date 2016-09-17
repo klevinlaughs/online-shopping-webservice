@@ -1,7 +1,7 @@
 package domain;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -39,7 +39,7 @@ public class Customer {
 	@XmlElement(name = "Item")
 	@ElementCollection
 	@OneToMany(fetch = FetchType.LAZY)
-	private Set<Item> purchaseHistory = new HashSet<Item>();
+	private List<Item> purchaseHistory = new ArrayList<Item>();
 	private DateTime joinDate;
 	private Image profilePic;
 
@@ -126,11 +126,11 @@ public class Customer {
 		this.creditCard = creditCard;
 	}
 
-	public Set<Item> getPurchaseHistory() {
+	public List<Item> getPurchaseHistory() {
 		return purchaseHistory;
 	}
 
-	public void setPurchaseHistory(Set<Item> purchaseHistory) {
+	public void setPurchaseHistory(List<Item> purchaseHistory) {
 		this.purchaseHistory = purchaseHistory;
 	}
 
