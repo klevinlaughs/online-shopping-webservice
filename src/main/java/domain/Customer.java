@@ -5,6 +5,8 @@ import java.util.Set;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -21,6 +23,7 @@ import org.joda.time.DateTime;
 public class Customer {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	private Long id;
 
 	private String userName;
@@ -31,7 +34,7 @@ public class Customer {
 	@XmlElementWrapper(name = "PurchaseHistory")
 	@XmlElement(name = "Item")
 	@ElementCollection
-	@OneToMany(fetch=FetchType.LAZY)
+	@OneToMany(fetch = FetchType.LAZY)
 	private Set<Item> purchaseHistory;
 	private DateTime joinDate;
 	private Image profilePic;
