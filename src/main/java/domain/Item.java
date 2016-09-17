@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -23,14 +24,36 @@ public class Item {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	private Long id;
 
+	@Column(nullable = false)
 	private String name;
 	private Long stockLevel;
+	@Column(nullable = false)
 	private BigDecimal price;
 	@XmlElementWrapper(name = "Images")
 	@XmlElement(name = "Image")
+	// TODO mapping
 	private Set<Image> images = new HashSet<Image>();
 	private Category category;
 	private boolean dealItem = false;
+
+	/**
+	 * Default constructor needed for persistent classes
+	 */
+	protected Item() {
+	}
+
+	/**
+	 * Creates an item with the required name and price fields
+	 * 
+	 * @param name
+	 *            the name of the item
+	 * @param price
+	 *            the price of the item
+	 */
+	public Item(String name, BigDecimal price) {
+		this.name = name;
+		this.price = price;
+	}
 
 	public Long getId() {
 		return id;
