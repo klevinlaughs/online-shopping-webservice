@@ -57,6 +57,7 @@ public class Customer {
 	 */
 	public Customer(String userName) {
 		this.userName = userName;
+		this.joinDate = new DateTime();
 	}
 
 	/**
