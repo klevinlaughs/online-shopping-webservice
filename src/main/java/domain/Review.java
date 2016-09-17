@@ -20,10 +20,8 @@ public class Review {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@Column(nullable = false)
 	private Customer reviewer;
 	@ManyToOne(fetch = FetchType.LAZY)
-	@Column(nullable = false)
 	private Item item;
 	@Column(nullable = false)
 	private Double starRating;
