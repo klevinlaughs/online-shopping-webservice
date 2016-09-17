@@ -1,5 +1,6 @@
 package services;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,6 +32,8 @@ import org.joda.time.LocalTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import domain.Item;
+
 /**
  * Web service resource implementation for the Parolee application. An instance
  * of this class handles all HTTP requests for the Parolee Web service.
@@ -42,6 +45,8 @@ import org.slf4j.LoggerFactory;
 public class ItemResource {
 	private static final Logger _logger = LoggerFactory
 			.getLogger(ItemResource.class);
+	
+	private static EntityManager em = PersistenceManager.instance().createEntityManager();
 
 	public ItemResource() {
 		reloadDatabase();
@@ -56,6 +61,14 @@ public class ItemResource {
 		reloadDatabase();
 	}
 
+	/**
+	 * Gets the deals of the day
+	 * 
+	 * @param start - the starting index (default 1)
+	 * @param size - the amount of deals to get (default 5)
+	 * @param uriInfo
+	 * @return
+	 */
 	@GET
 	@Produces("application/xml")
 	public Response getItemsToday(
@@ -142,62 +155,78 @@ public class ItemResource {
 	// }
 
 	protected void reloadDatabase() {
-		//
-		// _paroleeDB = new ConcurrentHashMap<Long, Parolee>();
-		// _idCounter = new AtomicLong();
-		//
-		// // === Initialise Parolee #1
-		// long id = _idCounter.incrementAndGet();
-		// Address address = new Address("15", "Bermuda road", "St Johns",
-		// "Auckland", "1071");
-		// Parolee parolee = new Parolee(id,
-		// "Sinnen",
-		// "Oliver",
-		// Gender.MALE,
-		// new LocalDate(1970, 5, 26),
-		// address,
-		// new Curfew(address, new LocalTime(20, 00),new LocalTime(06, 30)));
-		// _paroleeDB.put(id, parolee);
-		//
-		// CriminalProfile profile = new CriminalProfile();
-		// profile.addConviction(new CriminalProfile.Conviction(new LocalDate(
-		// 1994, 1, 19), "Crime of passion", Offence.MURDER,
-		// Offence.POSSESION_OF_OFFENSIVE_WEAPON));
-		// parolee.setCriminalProfile(profile);
-		//
-		// DateTime now = new DateTime();
-		// DateTime earlierToday = now.minusHours(1);
-		// DateTime yesterday = now.minusDays(1);
-		// GeoPosition position = new GeoPosition(-36.852617, 174.769525);
-		//
-		// parolee.addMovement(new Movement(yesterday, position));
-		// parolee.addMovement(new Movement(earlierToday, position));
-		// parolee.addMovement(new Movement(now, position));
-		//
-		// // === Initialise Parolee #2
-		// id = _idCounter.incrementAndGet();
-		// address = new Address("22", "Tarawera Terrace", "St Heliers",
-		// "Auckland", "1071");
-		// parolee = new Parolee(id,
-		// "Watson",
-		// "Catherine",
-		// Gender.FEMALE,
-		// new LocalDate(1970, 2, 9),
-		// address,
-		// null);
-		// _paroleeDB.put(id, parolee);
-		//
-		// // === Initialise Parolee #3
-		// id = _idCounter.incrementAndGet();
-		// address = new Address("67", "Drayton Gardens", "Oraeki", "Auckland",
-		// "1071");
-		// parolee = new Parolee(id,
-		// "Giacaman",
-		// "Nasser",
-		// Gender.MALE,
-		// new LocalDate(1980, 10, 19),
-		// address,
-		// null);
-		// _paroleeDB.put(id, parolee);
+		/*
+		 _paroleeDB = new ConcurrentHashMap<Long, Parolee>();
+		 _idCounter = new AtomicLong();
+		
+		 // === Initialise Parolee #1
+		 long id = _idCounter.incrementAndGet();
+		 Address address = new Address("15", "Bermuda road", "St Johns",
+		 "Auckland", "1071");
+		 Parolee parolee = new Parolee(id,
+		 "Sinnen",
+		 "Oliver",
+		 Gender.MALE,
+		 new LocalDate(1970, 5, 26),
+		 address,
+		 new Curfew(address, new LocalTime(20, 00),new LocalTime(06, 30)));
+		 _paroleeDB.put(id, parolee);
+		
+		 CriminalProfile profile = new CriminalProfile();
+		 profile.addConviction(new CriminalProfile.Conviction(new LocalDate(
+		 1994, 1, 19), "Crime of passion", Offence.MURDER,
+		 Offence.POSSESION_OF_OFFENSIVE_WEAPON));
+		 parolee.setCriminalProfile(profile);
+		
+		 DateTime now = new DateTime();
+		 DateTime earlierToday = now.minusHours(1);
+		 DateTime yesterday = now.minusDays(1);
+		 GeoPosition position = new GeoPosition(-36.852617, 174.769525);
+		
+		 parolee.addMovement(new Movement(yesterday, position));
+		 parolee.addMovement(new Movement(earlierToday, position));
+		 parolee.addMovement(new Movement(now, position));
+		
+		 // === Initialise Parolee #2
+		 id = _idCounter.incrementAndGet();
+		 address = new Address("22", "Tarawera Terrace", "St Heliers",
+		 "Auckland", "1071");
+		 parolee = new Parolee(id,
+		 "Watson",
+		 "Catherine",
+		 Gender.FEMALE,
+		 new LocalDate(1970, 2, 9),
+		 address,
+		 null);
+		 _paroleeDB.put(id, parolee);
+		
+		 // === Initialise Parolee #3
+		 id = _idCounter.incrementAndGet();
+		 address = new Address("67", "Drayton Gardens", "Oraeki", "Auckland",
+		 "1071");
+		 parolee = new Parolee(id,
+		 "Giacaman",
+		 "Nasser",
+		 Gender.MALE,
+		 new LocalDate(1980, 10, 19),
+		 address,
+		 null);
+		 _paroleeDB.put(id, parolee);*/
+		
+		// ---- ITEM 1 -----
+		Item item1 = new Item("PS4", new BigDecimal(599));
+		
+		// ---- ITEM 2 ----
+		Item item2 = new Item("Gatorade", new BigDecimal(3.99));
+		
+		// ---- ITEM 3 ----
+		Item item3 = new Item("7.1 Surround Sound Gaming Headset", new BigDecimal(240));
+		
+		// ---- ITEM 4 ----
+		Item item4 = new Item("Box of Tissues", new BigDecimal(2.50));
+		
+		// ---- ItEM 5 ----
+		Item item5 = new Item("Screwdriver Set", new BigDecimal(79.99));
+		
 	}
 }

@@ -36,6 +36,13 @@ public class Review {
 	protected Review() {
 	}
 
+	/**
+	 * Initializes the required fields
+	 * 
+	 * @param reviewer
+	 * @param item
+	 * @param starRating
+	 */
 	public Review(Customer reviewer, Item item, Double starRating) {
 		this.reviewer = reviewer;
 		this.item = item;
@@ -43,6 +50,15 @@ public class Review {
 		dateTime = new DateTime();
 	}
 
+	/**
+	 * Initializes the required fields with an optional comment about the
+	 * reviewed item
+	 * 
+	 * @param reviewer
+	 * @param item
+	 * @param starRating
+	 * @param comment
+	 */
 	public Review(Customer reviewer, Item item, Double starRating, String comment) {
 		this(reviewer, item, starRating);
 		this.setComment(comment);
