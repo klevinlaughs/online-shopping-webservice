@@ -23,7 +23,26 @@ public class Review {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Item item;
 	private Double starRating;
+	private String comment;
 	private DateTime dateTime;
+
+	/**
+	 * Default constructor needed for persistent classes
+	 */
+	protected Review() {
+	}
+
+	public Review(Customer reviewer, Item item, Double starRating) {
+		this.reviewer = reviewer;
+		this.item = item;
+		this.starRating = starRating;
+		dateTime = new DateTime();
+	}
+
+	public Review(Customer reviewer, Item item, Double starRating, String comment) {
+		this(reviewer, item, starRating);
+		this.setComment(comment);
+	}
 
 	public Long getId() {
 		return id;
@@ -55,6 +74,14 @@ public class Review {
 
 	public void setStarRating(Double starRating) {
 		this.starRating = starRating;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 
 	public DateTime getDateTime() {
