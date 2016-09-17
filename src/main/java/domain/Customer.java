@@ -33,6 +33,7 @@ public class Customer {
 	private String lastName;
 	private Address shippingAddress;
 	private Address billingAddress;
+	private CreditCard creditCard;
 	@XmlElementWrapper(name = "PurchaseHistory")
 	@XmlElement(name = "Item")
 	@ElementCollection
@@ -103,6 +104,14 @@ public class Customer {
 
 	public void setBillingAddress(Address billingAddress) {
 		this.billingAddress = billingAddress;
+	}
+
+	public CreditCard getCreditCard() {
+		return creditCard;
+	}
+
+	public void setCreditCard(CreditCard creditCard) {
+		this.creditCard = creditCard;
 	}
 
 	public Set<Item> getPurchaseHistory() {
