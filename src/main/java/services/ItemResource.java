@@ -33,7 +33,13 @@ import org.joda.time.LocalTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import domain.Address;
+import domain.Category;
+import domain.CreditCard;
+import domain.Customer;
+import domain.Image;
 import domain.Item;
+import domain.Review;
 
 /**
  * Web service resource implementation for the Parolee application. An instance
@@ -44,9 +50,8 @@ import domain.Item;
  */
 @Path("/item")
 public class ItemResource {
-	private static final Logger _logger = LoggerFactory
-			.getLogger(ItemResource.class);
-	
+	private static final Logger _logger = LoggerFactory.getLogger(ItemResource.class);
+
 	private static EntityManager em = PersistenceManager.instance().createEntityManager();
 
 	public ItemResource() {
@@ -65,17 +70,17 @@ public class ItemResource {
 	/**
 	 * Gets the deals of the day
 	 * 
-	 * @param start - the starting index (default 1)
-	 * @param size - the amount of deals to get (default 5)
+	 * @param start
+	 *            - the starting index (default 1)
+	 * @param size
+	 *            - the amount of deals to get (default 5)
 	 * @param uriInfo
 	 * @return
 	 */
 	@GET
 	@Produces("application/xml")
-	public Response getItemsToday(
-			@DefaultValue("1") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size,
-			@Context UriInfo uriInfo) {
+	public Response getItemsToday(@DefaultValue("1") @QueryParam("start") int start,
+			@DefaultValue("3") @QueryParam("size") int size, @Context UriInfo uriInfo) {
 
 		URI uri = uriInfo.getAbsolutePath();
 
@@ -156,78 +161,64 @@ public class ItemResource {
 	// }
 
 	protected void reloadDatabase() {
-		/*
-		 _paroleeDB = new ConcurrentHashMap<Long, Parolee>();
-		 _idCounter = new AtomicLong();
-		
-		 // === Initialise Parolee #1
-		 long id = _idCounter.incrementAndGet();
-		 Address address = new Address("15", "Bermuda road", "St Johns",
-		 "Auckland", "1071");
-		 Parolee parolee = new Parolee(id,
-		 "Sinnen",
-		 "Oliver",
-		 Gender.MALE,
-		 new LocalDate(1970, 5, 26),
-		 address,
-		 new Curfew(address, new LocalTime(20, 00),new LocalTime(06, 30)));
-		 _paroleeDB.put(id, parolee);
-		
-		 CriminalProfile profile = new CriminalProfile();
-		 profile.addConviction(new CriminalProfile.Conviction(new LocalDate(
-		 1994, 1, 19), "Crime of passion", Offence.MURDER,
-		 Offence.POSSESION_OF_OFFENSIVE_WEAPON));
-		 parolee.setCriminalProfile(profile);
-		
-		 DateTime now = new DateTime();
-		 DateTime earlierToday = now.minusHours(1);
-		 DateTime yesterday = now.minusDays(1);
-		 GeoPosition position = new GeoPosition(-36.852617, 174.769525);
-		
-		 parolee.addMovement(new Movement(yesterday, position));
-		 parolee.addMovement(new Movement(earlierToday, position));
-		 parolee.addMovement(new Movement(now, position));
-		
-		 // === Initialise Parolee #2
-		 id = _idCounter.incrementAndGet();
-		 address = new Address("22", "Tarawera Terrace", "St Heliers",
-		 "Auckland", "1071");
-		 parolee = new Parolee(id,
-		 "Watson",
-		 "Catherine",
-		 Gender.FEMALE,
-		 new LocalDate(1970, 2, 9),
-		 address,
-		 null);
-		 _paroleeDB.put(id, parolee);
-		
-		 // === Initialise Parolee #3
-		 id = _idCounter.incrementAndGet();
-		 address = new Address("67", "Drayton Gardens", "Oraeki", "Auckland",
-		 "1071");
-		 parolee = new Parolee(id,
-		 "Giacaman",
-		 "Nasser",
-		 Gender.MALE,
-		 new LocalDate(1980, 10, 19),
-		 address,
-		 null);
-		 _paroleeDB.put(id, parolee);*/
-		
-		// ---- ITEM 1 -----
+		// ---- ITEMS SET UP ----
 		Item item1 = new Item("PS4", new BigDecimal(599));
-		
-		// ---- ITEM 2 ----
+		item1.addImage(new Image("ps4.jpg", 1024, 768));
+		item1.addImage(new Image("xbox.png"));
+
 		Item item2 = new Item("Gatorade", new BigDecimal(3.99));
-		
-		// ---- ITEM 3 ----
 		Item item3 = new Item("7.1 Surround Sound Gaming Headset", new BigDecimal(240));
 		
-		// ---- ITEM 4 ----
-		Item item4 = new Item("Box of Tissues", new BigDecimal(2.50));
+		Item item4 = new Item("Box of Tissues", new BigDecimal(2.49));
+		item4.setDealItem(true);
+		Item item5 = new Item("Pepsi 2.5L", new BigDecimal(1.99));
+		item5.setDealItem(true);
+		Item item6 = new Item("Pawpaw Ointment", new BigDecimal(7.99));
+		item6.setDealItem(true);
+		Item item7 = new Item("AWP", new BigDecimal(4000));
+		item7.setDealItem(true);
 		
-		// ---- ItEM 5 ----
-		Item item5 = new Item("Screwdriver Set", new BigDecimal(79.99));
+
+		// ---- CATEGORIES SET UP ----
+		Category catElec = new Category("Electronics");
+		Category catAudio = new Category("Audio", catElec);
+		Category catGaming = new Category("Gaming", catElec);
+		Category catFoodAndDrink = new Category("Food and Drink");
+		Category catGuns = new Category("Guns");
+		// TODO more categories?
+
+		item1.setCategory(catGaming);
+		item2.setCategory(catFoodAndDrink);
+		item3.setCategory(catAudio);
+		
+		item5.setCategory(catFoodAndDrink);
+		
+		item7.setCategory(catGuns);
+
+		// ---- CUSTOMERS SET UP ----
+		Customer customer1 = new Customer("x_sniper360noscope_x");
+		customer1.setFirstName("John");
+		customer1.setLastName("Doe");
+		customer1.setProfilePic(new Image("this-is-me.jpg"));
+		customer1.setShippingAddress(new Address(123, "Sneaky Road", "Plum Hill", "BoomCity", "Japanda", "20580"));
+		customer1.setBillingAddress(customer1.getShippingAddress());
+		customer1.setCreditCard(new CreditCard("123456789", "November", "2020"));
+		customer1.addToPurchaseHistory(item7);
+		customer1.addToPurchaseHistory(item5);
+		customer1.addToPurchaseHistory(item3);
+		customer1.addToPurchaseHistory(item1);
+		
+		Customer customer2 = new Customer("chuggachuggachoochoo");
+		
+		Customer customer3 = new Customer("trainee");
+		customer3.setFirstName("Jim");
+		customer3.setLastName("Bob");
+		customer3.addToPurchaseHistory(item1);
+		customer3.addToPurchaseHistory(item2);
+		
+		// ---- REVIEWS SET UP ----
+		Review review1 = new Review(customer1, item7, 5.0);
+		Review review2 = new Review(customer1, item1, 1.0, "Fake!! Don't buy! You have been warned!");
 		
 	}
 }
