@@ -2,6 +2,11 @@ package domain;
 
 import java.util.Set;
 
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -12,6 +17,7 @@ import org.joda.time.DateTime;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@Entity
 public class Customer {
 
 	private Long id;
@@ -23,6 +29,8 @@ public class Customer {
 	private Address billingAddress;
 	@XmlElementWrapper(name = "PurchaseHistory")
 	@XmlElement(name = "Item")
+	@ElementCollection
+	@OneToMany(fetch=FetchType.LAZY)
 	private Set<Item> purchaseHistory;
 	private DateTime joinDate;
 	private Image profilePic;
