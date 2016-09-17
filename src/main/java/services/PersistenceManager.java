@@ -21,7 +21,7 @@ public class PersistenceManager {
 	private EntityManagerFactory _entityManagerFactory;
 	
 	protected PersistenceManager() {
-		_entityManagerFactory = Persistence.createEntityManagerFactory("blogPU");
+		_entityManagerFactory = Persistence.createEntityManagerFactory("shopPU");
 	}
 	
 	public EntityManager createEntityManager() {

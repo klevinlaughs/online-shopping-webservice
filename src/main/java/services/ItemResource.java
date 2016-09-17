@@ -161,6 +161,7 @@ public class ItemResource {
 
 	protected void reloadDatabase() {
 		// ---- ITEMS SET UP ----
+		// TODO stock levels
 		Item item1 = new Item("PS4", new BigDecimal(599));
 		item1.addImage(new Image("ps4.jpg", 1024, 768));
 		item1.addImage(new Image("xbox.png"));
