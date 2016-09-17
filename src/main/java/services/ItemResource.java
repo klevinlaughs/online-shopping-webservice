@@ -60,7 +60,7 @@ public class ItemResource {
 	@Produces("application/xml")
 	public Response getItemsToday(
 			@DefaultValue("1") @QueryParam("start") int start,
-			@DefaultValue("10") @QueryParam("size") int size,
+			@DefaultValue("5") @QueryParam("size") int size,
 			@Context UriInfo uriInfo) {
 
 		URI uri = uriInfo.getAbsolutePath();
