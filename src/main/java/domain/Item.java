@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -31,7 +32,7 @@ public class Item {
 	private BigDecimal price;
 	@XmlElementWrapper(name = "Images")
 	@XmlElement(name = "Image")
-	// TODO mapping
+	@ElementCollection
 	private Set<Image> images = new HashSet<Image>();
 	private Category category;
 	private boolean dealItem = false;
