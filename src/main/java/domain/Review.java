@@ -1,5 +1,6 @@
 package domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -19,9 +20,12 @@ public class Review {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
+	@Column(nullable = false)
 	private Customer reviewer;
 	@ManyToOne(fetch = FetchType.LAZY)
+	@Column(nullable = false)
 	private Item item;
+	@Column(nullable = false)
 	private Double starRating;
 	private String comment;
 	private DateTime dateTime;
