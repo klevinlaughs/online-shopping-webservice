@@ -42,10 +42,9 @@ import domain.Item;
 import domain.Review;
 
 /**
- * Web service resource implementation for the Parolee application. An instance
- * of this class handles all HTTP requests for the Parolee Web service.
+ * The resource by which the online shopping web service is accessed
  * 
- * @author Ian Warren
+ * @author Kelvin Lau
  *
  */
 @Path("/item")
@@ -168,7 +167,7 @@ public class ItemResource {
 
 		Item item2 = new Item("Gatorade", new BigDecimal(3.99));
 		Item item3 = new Item("7.1 Surround Sound Gaming Headset", new BigDecimal(240));
-		
+
 		Item item4 = new Item("Box of Tissues", new BigDecimal(2.49));
 		item4.setDealItem(true);
 		Item item5 = new Item("Pepsi 2.5L", new BigDecimal(1.99));
@@ -177,7 +176,6 @@ public class ItemResource {
 		item6.setDealItem(true);
 		Item item7 = new Item("AWP", new BigDecimal(4000));
 		item7.setDealItem(true);
-		
 
 		// ---- CATEGORIES SET UP ----
 		Category catElec = new Category("Electronics");
@@ -190,9 +188,9 @@ public class ItemResource {
 		item1.setCategory(catGaming);
 		item2.setCategory(catFoodAndDrink);
 		item3.setCategory(catAudio);
-		
+
 		item5.setCategory(catFoodAndDrink);
-		
+
 		item7.setCategory(catGuns);
 
 		// ---- CUSTOMERS SET UP ----
@@ -207,18 +205,18 @@ public class ItemResource {
 		customer1.addToPurchaseHistory(item5);
 		customer1.addToPurchaseHistory(item3);
 		customer1.addToPurchaseHistory(item1);
-		
+
 		Customer customer2 = new Customer("chuggachuggachoochoo");
-		
+
 		Customer customer3 = new Customer("trainee");
 		customer3.setFirstName("Jim");
 		customer3.setLastName("Bob");
 		customer3.addToPurchaseHistory(item1);
 		customer3.addToPurchaseHistory(item2);
-		
+
 		// ---- REVIEWS SET UP ----
 		Review review1 = new Review(customer1, item7, 5.0);
 		Review review2 = new Review(customer1, item1, 1.0, "Fake!! Don't buy! You have been warned!");
-		
+
 	}
 }
