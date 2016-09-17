@@ -56,6 +56,16 @@ public class Item {
 		this.price = price;
 	}
 
+	/**
+	 * Adds the input image to the colleciton of images
+	 * 
+	 * @param image
+	 *            the image to add
+	 */
+	public void addImage(Image image) {
+		images.add(image);
+	}
+
 	public Long getId() {
 		return id;
 	}
