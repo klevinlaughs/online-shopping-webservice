@@ -2,6 +2,7 @@ package domain;
 
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -26,6 +27,7 @@ public class Customer {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	private Long id;
 
+	@Column(nullable = false)
 	private String userName;
 	private String firstName;
 	private String lastName;
@@ -38,6 +40,22 @@ public class Customer {
 	private Set<Item> purchaseHistory;
 	private DateTime joinDate;
 	private Image profilePic;
+
+	/**
+	 * Default constructor needed for persistent classes
+	 */
+	protected Customer() {
+	}
+
+	/**
+	 * Creates a user with the required username field
+	 * 
+	 * @param userName
+	 *            the username of the customer
+	 */
+	public Customer(String userName) {
+		this.userName = userName;
+	}
 
 	public Long getId() {
 		return id;
