@@ -35,8 +35,8 @@ public class Item {
 	@Column(nullable = false)
 	private BigDecimal price;
 	@XmlJavaTypeAdapter(SingleImageAdapter.class)
-	@XmlElementWrapper(name = "Images")
-	@XmlElement(name = "Image")
+//	@XmlElementWrapper(name = "Images")
+//	@XmlElement(name = "Image")
 	@ElementCollection
 	private Set<Image> images = new HashSet<Image>();
 	@ManyToOne
