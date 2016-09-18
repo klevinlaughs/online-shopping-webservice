@@ -2,6 +2,7 @@ package domain;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -136,6 +137,25 @@ public class Item {
 	public double getRating() {
 		// TODO
 		return 0.0;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Item:{ id:" + id)
+		.append(", name:" + name)
+		.append(", stockLevel:" + stockLevel)
+		.append(", price:" + price)
+		.append(", images:{ ");
+		Iterator<Image> imgIterator = images.iterator();
+		while(imgIterator.hasNext()){
+			sb.append("Image:" + imgIterator.next().toString() + ", ");
+		}
+		sb.replace(sb.length()-2, sb.length()-1, " }")
+		.append(", category:" + category)
+		.append(", dealItem:" + dealItem)
+		.append(" }");
+		return sb.toString();
 	}
 
 }
