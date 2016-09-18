@@ -91,7 +91,7 @@ public class Category {
 //		if (parentCategory == null){
 //			return "{ " + name;
 //		} else {
-//			return " > " + name + " }";
+//			return parentCategory.toString() + " > " + name + " }";
 //		}
 		return name;
 	}
