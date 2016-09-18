@@ -68,5 +68,15 @@ public class Image {
 	public void setHeight(int height) {
 		this.height = height;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Image:{ name:" + name)
+		.append(", width:" + width)
+		.append(", height" + height)
+		.append(" }");
+		return sb.toString();
+	}
 
 }
