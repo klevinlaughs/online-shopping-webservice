@@ -133,6 +133,19 @@ public class ItemResource {
 		return response;
 	}
 	
+	@GET
+	@Path("{id}")
+	@Produces("application/xml")
+	public Item getItemById(@PathParam("id") long id){
+		
+		em.getTransaction().begin();
+		Item item = em.find(Item.class, id);
+		em.getTransaction().commit();
+		
+		return item;
+		
+	}
+
 	/**
 	 * Gets the deals of the day
 	 * 
