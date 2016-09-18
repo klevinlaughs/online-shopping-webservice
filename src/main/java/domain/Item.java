@@ -151,8 +151,12 @@ public class Item {
 		while(imgIterator.hasNext()){
 			sb.append("Image:" + imgIterator.next().toString() + ", ");
 		}
-		sb.replace(sb.length()-2, sb.length()-1, " }")
-		.append(", category:" + category)
+		if (images.isEmpty()){
+			sb.append("}");
+		} else {
+			sb.replace(sb.length()-2, sb.length()-1, " }");
+		}
+		sb.append(", category:" + category)
 		.append(", dealItem:" + dealItem)
 		.append(" }");
 		return sb.toString();
