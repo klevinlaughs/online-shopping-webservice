@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 
 import jaxb.PurchaseHistoryAdapter;
 
@@ -185,7 +186,7 @@ public class Customer {
 		} else {
 			sb.replace(sb.length()-2, sb.length()-1, " }");
 		}
-		sb.append(", joinDate:" + joinDate)
+		sb.append(", joinDate:" + joinDate.toString(DateTimeFormat.forPattern("[dd/MM/yyyy HH:mm:ss]")))
 		.append(" }");
 		return sb.toString();
 	}
