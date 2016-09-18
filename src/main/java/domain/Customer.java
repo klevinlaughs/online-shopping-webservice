@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -38,14 +39,16 @@ public class Customer {
 	private String userName;
 	private String firstName;
 	private String lastName;
+	@Transient
 	private Address shippingAddress;
+	@Transient
 	@AttributeOverrides({
-		@AttributeOverride(name="number", column=@Column(name="BILLING_NUMBER", nullable=false)),
-		@AttributeOverride(name="street", column=@Column(name="BILLING_STREET", nullable=false)),
-		@AttributeOverride(name="suburb", column=@Column(name="BILLING_SUBURB", nullable=false)),
-		@AttributeOverride(name="city", column=@Column(name="BILLING_CITY", nullable=false)),
-		@AttributeOverride(name="country", column=@Column(name="BILLING_COUNTRY", nullable=false)),
-		@AttributeOverride(name="zipCode", column=@Column(name="BILLING_ZIPCODE", nullable=false))
+		@AttributeOverride(name="number", column=@Column(name="BILLING_NUMBER"/*, nullable=false*/)),
+		@AttributeOverride(name="street", column=@Column(name="BILLING_STREET"/*, nullable=false*/)),
+		@AttributeOverride(name="suburb", column=@Column(name="BILLING_SUBURB"/*, nullable=false*/)),
+		@AttributeOverride(name="city", column=@Column(name="BILLING_CITY"/*, nullable=false*/)),
+		@AttributeOverride(name="country", column=@Column(name="BILLING_COUNTRY"/*, nullable=false*/)),
+		@AttributeOverride(name="zipCode", column=@Column(name="BILLING_ZIPCODE"/*, nullable=false*/))
 	})
 	private Address billingAddress;
 	private CreditCard creditCard;
@@ -57,6 +60,7 @@ public class Customer {
 	@OneToMany(fetch = FetchType.LAZY)
 	private List<Item> purchaseHistory = new ArrayList<Item>();
 	private DateTime joinDate;
+	@Transient
 	private Image profilePic;
 
 	/**
@@ -172,12 +176,12 @@ public class Customer {
 		.append(", shippingAddress:" + shippingAddress)
 		.append(", billingAddress:" + billingAddress)
 		.append(", creditCard:" + creditCard)
-		.append(", purchaseHistory:{");
+		.append(", purchaseHistory:{ ");
 		for (int i = 0; i < purchaseHistory.size() - 1; i++){
 			sb.append("Item:" + purchaseHistory.get(i).getName() + ", ");
 		}
 		sb.append("Item:" + purchaseHistory.get(purchaseHistory.size() - 1))
-		.append("}, joinDate:" + joinDate)
+		.append(" }, joinDate:" + joinDate)
 		.append(" }");
 		return sb.toString();
 	}
