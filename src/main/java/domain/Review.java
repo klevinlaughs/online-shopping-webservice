@@ -109,5 +109,18 @@ public class Review {
 	public void setDateTime(DateTime dateTime) {
 		this.dateTime = dateTime;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Review:{ id:" + id)
+		.append(", reviewer:" + reviewer.getUserName())
+		.append(", item:" + item.getName())
+		.append(", starRating:" + starRating)
+		.append(", comment:" + comment)
+		.append(", dateTime:" + dateTime)
+		.append(" }");
+		return sb.toString();
+	}
 
 }
