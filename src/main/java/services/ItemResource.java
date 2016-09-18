@@ -67,18 +67,86 @@ public class ItemResource {
 	}
 
 	/**
-	 * Gets the deals of the day
+	 * HATEOS for getting items, only want 5 items by default, starting at index
+	 * 0
 	 * 
 	 * @param start
-	 *            - the starting index (default 1)
 	 * @param size
-	 *            - the amount of deals to get (default 5)
 	 * @param uriInfo
 	 * @return
 	 */
 	@GET
 	@Produces("application/xml")
-	public Response getItemsToday(@DefaultValue("1") @QueryParam("start") int start,
+	public Response getItems(@DefaultValue("0") @QueryParam("start") int start,
+			@DefaultValue("5") @QueryParam("size") int size, @Context UriInfo uriInfo) {
+		
+		_logger.info("Getting items");
+
+		em.getTransaction().begin();
+		
+		int itemCount = em.createQuery("select count(*) from Item item", Integer.class).getSingleResult();
+
+		em.getTransaction().commit();
+		em.getTransaction().begin();
+
+		URI uri = uriInfo.getAbsolutePath();
+
+		Link previous = null;
+		Link next = null;
+
+		if (start > 0) {
+			_logger.info("Making previous link...");
+			// There are previous Items
+			int newStart;
+			if (start > size) {
+				// Start is greater than size, even more previous items afterwards
+				newStart = start - size;
+			} else {
+				// Start is equal to or less than size, no more previous items afterwards
+				newStart = 0;
+			}
+			previous = Link.fromUri(uri + "?start={start}&size={size}").rel("prev").build(newStart, size);
+		}
+		if (start + size <= itemCount) {
+			// There are more items
+			_logger.info("Making next link...");
+			next = Link.fromUri(uri + "?start={start}&size={size}").rel("next").build(start + 1, size);
+		}
+
+		List<Item> items = em.createQuery("select i from Item i", Item.class).setFirstResult(start).setMaxResults(size)
+				.getResultList();
+
+		em.getTransaction().commit();
+
+		GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {
+		};
+
+		ResponseBuilder builder = Response.ok(entity);
+		if (previous != null) {
+			builder.links(previous);
+		}
+		if (next != null) {
+			builder.links(next);
+		}
+		Response response = builder.build();
+
+		return response;
+	}
+	
+	/**
+	 * Gets the deals of the day
+	 * 
+	 * @param start
+	 *            - the starting index (default 1)
+	 * @param size
+	 *            - the amount of deals to get (default 3)
+	 * @param uriInfo
+	 * @return
+	 */
+	@GET
+	@Path("deals")
+	@Produces("application/xml")
+	public Response getItemsToday(@DefaultValue("0") @QueryParam("start") int start,
 			@DefaultValue("3") @QueryParam("size") int size, @Context UriInfo uriInfo) {
 
 		URI uri = uriInfo.getAbsolutePath();
@@ -168,19 +236,19 @@ public class ItemResource {
 
 		Item item2 = new Item("Gatorade", new BigDecimal(3.99));
 		item2.setStockLevel(30);
-		
+
 		Item item3 = new Item("7.1 Surround Sound Gaming Headset", new BigDecimal(240));
 		item3.setStockLevel(0);
 
 		Item item4 = new Item("Box of Tissues", new BigDecimal(2.49));
 		item4.setDealItem(true);
-		
+
 		Item item5 = new Item("Pepsi 2.5L", new BigDecimal(1.99));
 		item5.setDealItem(true);
-		
+
 		Item item6 = new Item("Pawpaw Ointment", new BigDecimal(7.99));
 		item6.setDealItem(true);
-		
+
 		Item item7 = new Item("AWP", new BigDecimal(4000));
 		item7.setDealItem(true);
 		item7.setStockLevel(1);
