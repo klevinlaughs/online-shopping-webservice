@@ -161,5 +161,25 @@ public class Customer {
 	public void setProfilePic(Image profilePic) {
 		this.profilePic = profilePic;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("{ id:" + id)
+		.append(", userName:" + userName)
+		.append(", firstName:" + firstName)
+		.append(", lastName:" + lastName)
+		.append(", shippingAddress:" + shippingAddress)
+		.append(", billingAddress:" + billingAddress)
+		.append(", creditCard:" + creditCard)
+		.append(", purchaseHistory:{");
+		for (int i = 0; i < purchaseHistory.size() - 1; i++){
+			sb.append("Item:" + purchaseHistory.get(i).getName() + ", ");
+		}
+		sb.append("Item:" + purchaseHistory.get(purchaseHistory.size() - 1))
+		.append("}, joinDate:" + joinDate)
+		.append(" }");
+		return super.toString();
+	}
 
 }
