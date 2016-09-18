@@ -79,11 +79,11 @@ public class ItemResource {
 	@Produces("application/xml")
 	public Response getItems(@DefaultValue("0") @QueryParam("start") int start,
 			@DefaultValue("5") @QueryParam("size") int size, @Context UriInfo uriInfo) {
-		
+
 		_logger.info("Getting items");
 
 		em.getTransaction().begin();
-		
+
 		int itemCount = em.createQuery("select count(*) from Item item", Integer.class).getSingleResult();
 
 		em.getTransaction().commit();
@@ -99,10 +99,12 @@ public class ItemResource {
 			// There are previous Items
 			int newStart;
 			if (start > size) {
-				// Start is greater than size, even more previous items afterwards
+				// Start is greater than size, even more previous items
+				// afterwards
 				newStart = start - size;
 			} else {
-				// Start is equal to or less than size, no more previous items afterwards
+				// Start is equal to or less than size, no more previous items
+				// afterwards
 				newStart = 0;
 			}
 			previous = Link.fromUri(uri + "?start={start}&size={size}").rel("prev").build(newStart, size);
@@ -132,18 +134,23 @@ public class ItemResource {
 
 		return response;
 	}
-	
+
+	/**
+	 * Gets item by id
+	 * 
+	 * @param id
+	 *            the id of the item
+	 * @return the item
+	 */
 	@GET
 	@Path("{id}")
 	@Produces("application/xml")
-	public Item getItemById(@PathParam("id") long id){
-		
+	public Item getItemById(@PathParam("id") long id) {
 		em.getTransaction().begin();
 		Item item = em.find(Item.class, id);
 		em.getTransaction().commit();
-		
+
 		return item;
-		
 	}
 
 	/**
