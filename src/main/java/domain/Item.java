@@ -31,7 +31,7 @@ public class Item {
 
 	@Column(nullable = false)
 	private String name;
-	private Long stockLevel;
+	private int stockLevel;
 	@Column(nullable = false)
 	private BigDecimal price;
 	@XmlJavaTypeAdapter(SingleImageAdapter.class)
@@ -88,11 +88,11 @@ public class Item {
 		this.name = name;
 	}
 
-	public Long getStockLevel() {
+	public int getStockLevel() {
 		return stockLevel;
 	}
 
-	public void setStockLevel(Long stockLevel) {
+	public void setStockLevel(int stockLevel) {
 		this.stockLevel = stockLevel;
 	}
 
