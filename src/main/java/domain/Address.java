@@ -96,4 +96,18 @@ public class Address {
 	public void setZipCode(String zipCode) {
 		this.zipCode = zipCode;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("{ ")
+		.append(number + " ")
+		.append(street + " ")
+		.append(suburb + " ")
+		.append(city + " ")
+		.append(country + " ")
+		.append(zipCode + " ")
+		.append("}");
+		return sb.toString();
+	}
 }
