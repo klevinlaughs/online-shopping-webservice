@@ -179,7 +179,7 @@ public class Customer {
 		sb.append("Item:" + purchaseHistory.get(purchaseHistory.size() - 1))
 		.append("}, joinDate:" + joinDate)
 		.append(" }");
-		return super.toString();
+		return sb.toString();
 	}
 
 }
