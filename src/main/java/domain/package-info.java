@@ -1,8 +1,9 @@
 @XmlJavaTypeAdapters({
     @XmlJavaTypeAdapter(type=DateTime.class,
-        value=DateTimeAdapter.class),
-    @XmlJavaTypeAdapter(type=List.class,
-    	value=PurchaseHistoryAdapter.class)
+        value=DateTimeAdapter.class)
+//    ,
+//    @XmlJavaTypeAdapter(type=List.class,
+//    	value=PurchaseHistoryAdapter.class)
 })
 
 package domain;

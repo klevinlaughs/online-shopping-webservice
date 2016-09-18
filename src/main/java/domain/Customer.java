@@ -19,8 +19,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.joda.time.DateTime;
+
+import jaxb.PurchaseHistoryAdapter;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -46,8 +49,9 @@ public class Customer {
 	})
 	private Address billingAddress;
 	private CreditCard creditCard;
-	@XmlElementWrapper(name = "PurchaseHistory")
-	@XmlElement(name = "Item")
+//	@XmlJavaTypeAdapter(PurchaseHistoryAdapter.class)
+//	@XmlElementWrapper(name = "PurchaseHistory")
+//	@XmlElement(name = "Item")
 	@ElementCollection
 	@OrderColumn
 	@OneToMany(fetch = FetchType.LAZY)
