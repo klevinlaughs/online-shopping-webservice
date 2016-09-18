@@ -177,11 +177,15 @@ public class Customer {
 		.append(", billingAddress:" + billingAddress)
 		.append(", creditCard:" + creditCard)
 		.append(", purchaseHistory:{ ");
-		for (int i = 0; i < purchaseHistory.size() - 1; i++){
+		for (int i = 0; i < purchaseHistory.size(); i++){
 			sb.append("Item:" + purchaseHistory.get(i).getName() + ", ");
 		}
-		sb.append("Item:" + purchaseHistory.get(purchaseHistory.size() - 1))
-		.append(" }, joinDate:" + joinDate)
+		if (purchaseHistory.isEmpty()){
+			sb.append("}");
+		} else {
+			sb.replace(sb.length()-2, sb.length()-1, " }");
+		}
+		sb.append(", joinDate:" + joinDate)
 		.append(" }");
 		return sb.toString();
 	}
