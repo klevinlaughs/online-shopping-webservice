@@ -61,7 +61,7 @@ public class CreditCard {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("{ cardNumber:" + cardNumber)
+		sb.append("CreditCard{ cardNumber:" + cardNumber)
 		.append(", expiryMonth:" + expiryMonth)
 		.append(", expiryYear:" + expiryYear)
 		.append(" }");

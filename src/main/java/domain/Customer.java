@@ -165,7 +165,7 @@ public class Customer {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("{ id:" + id)
+		sb.append("Customer:{ id:" + id)
 		.append(", userName:" + userName)
 		.append(", firstName:" + firstName)
 		.append(", lastName:" + lastName)
