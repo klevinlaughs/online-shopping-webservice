@@ -10,6 +10,7 @@ import javax.persistence.ManyToOne;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 
 @XmlRootElement
 @Entity
@@ -118,7 +119,7 @@ public class Review {
 		.append(", item:" + item.getName())
 		.append(", starRating:" + starRating)
 		.append(", comment:" + comment)
-		.append(", dateTime:" + dateTime)
+		.append(", dateTime:" + dateTime.toString(DateTimeFormat.forPattern("[dd/MM/yyyy HH:mm:ss]")))
 		.append(" }");
 		return sb.toString();
 	}
