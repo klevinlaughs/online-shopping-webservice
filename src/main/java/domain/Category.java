@@ -2,6 +2,7 @@ package domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -28,7 +29,7 @@ public class Category {
 	@Column(nullable = false, unique = true)
 	private String name;
 	@XmlIDREF
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.EAGER)
 	private Category parentCategory;
 
 	/**
@@ -83,6 +84,16 @@ public class Category {
 
 	public void setParentCategory(Category parentCategory) {
 		this.parentCategory = parentCategory;
+	}
+	
+	@Override
+	public String toString() {
+//		if (parentCategory == null){
+//			return "{ " + name;
+//		} else {
+//			return " > " + name + " }";
+//		}
+		return name;
 	}
 
 }
