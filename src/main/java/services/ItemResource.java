@@ -112,7 +112,15 @@ public class ItemResource {
 		if (start + size <= itemCount) {
 			// There are more items
 			_logger.info("Making next link...");
-			next = Link.fromUri(uri + "?start={start}&size={size}").rel("next").build(start + 1, size);
+			int nextSize;
+			if (start + 2 * size <= itemCount){
+				// Next step has even more items after
+				nextSize = 5;
+			} else {
+				// Next step doesn't have anymore after
+				nextSize = itemCount - start - size;
+			}
+			next = Link.fromUri(uri + "?start={start}&size={size}").rel("next").build(start + size, nextSize);
 		}
 
 		List<Item> items = em.createQuery("select i from Item i", Item.class).setFirstResult(start).setMaxResults(size)
