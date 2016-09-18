@@ -84,7 +84,7 @@ public class ItemResource {
 
 		em.getTransaction().begin();
 
-		int itemCount = em.createQuery("select count(*) from Item item", Integer.class).getSingleResult();
+		Long itemCount = em.createQuery("select count(*) from Item item", Long.class).getSingleResult();
 
 		em.getTransaction().commit();
 		em.getTransaction().begin();
@@ -118,7 +118,7 @@ public class ItemResource {
 				nextSize = 5;
 			} else {
 				// Next step doesn't have anymore after
-				nextSize = itemCount - start - size;
+				nextSize = (int) (itemCount - start - size);
 			}
 			next = Link.fromUri(uri + "?start={start}&size={size}").rel("next").build(start + size, nextSize);
 		}
@@ -321,6 +321,32 @@ public class ItemResource {
 		// ---- REVIEWS SET UP ----
 		Review review1 = new Review(customer1, item7, 5.0);
 		Review review2 = new Review(customer1, item1, 1.0, "Fake!! Don't buy! You have been warned!");
+
+		// ---- PERSISTENCE ----
+		em.getTransaction().begin();
+		
+		em.persist(item1);
+		em.persist(item2);
+		em.persist(item3);
+		em.persist(item4);
+		em.persist(item5);
+		em.persist(item6);
+		em.persist(item7);
+
+		em.persist(customer1);
+		em.persist(customer2);
+		em.persist(customer3);
+		
+		em.persist(catElec);
+		em.persist(catAudio);
+		em.persist(catGaming);
+		em.persist(catFoodAndDrink);
+		em.persist(catGuns);
+
+		em.persist(review1);
+		em.persist(review2);
+		
+		em.getTransaction().commit();
 
 	}
 }
