@@ -8,9 +8,10 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 /**
- * Converter for org.joda.time.DateTime to be stored in db
+ * Converter for org.joda.time.DateTime to be stored in db as a timestamp.
+ * Format of the timestamp is dd/MM/yyyy HH:mm:ss
  * 
- * @author Kelvin
+ * @author Kelvin Lau
  *
  */
 @Converter(autoApply = true)
@@ -18,12 +19,12 @@ public class DateTimeConverter implements AttributeConverter<DateTime, String> {
 
 	@Override
 	public String convertToDatabaseColumn(DateTime attribute) {
-		return attribute.toString(DateTimeFormat.forPattern("[dd/MM/yyyy HH:mm:ss]"));
+		return attribute.toString(DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss"));
 	}
 
 	@Override
 	public DateTime convertToEntityAttribute(String dbData) {
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("[dd/MM/yyyy HH:mm:ss]");
+		DateTimeFormatter dtf = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
 		return dtf.parseDateTime(dbData);
 	}
 
