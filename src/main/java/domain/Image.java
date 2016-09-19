@@ -10,8 +10,8 @@ public class Image {
 
 	@Column(nullable = false)
 	private String name;
-	private int width;
-	private int height;
+	private Integer width;
+	private Integer height;
 
 	/**
 	 * Default constructor needed for persistent classes
