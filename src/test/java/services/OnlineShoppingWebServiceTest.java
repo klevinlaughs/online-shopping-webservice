@@ -85,5 +85,27 @@ public class OnlineShoppingWebServiceTest {
 	public static void destroyClient() {
 		_client.close();
 	}
+	
+	//@Test
+	public void getItemsDefault() {
+//		Response response = _client.target(WEB_SERVICE_URI)
+//				.request()
+//				.accept("application/xml")
+//				.get();
+//		
+//		List<Item> items = (List<Item>) response.getEntity();
+//		
+//		response.close();
+
+		List<Item> items = _client.target(WEB_SERVICE_URI)
+				.request()
+				.accept("application/xml")
+				.get(new GenericType<List<Item>>(){});
+		
+		_logger.info("Items retrieved: " + items );
+		
+		assertEquals(items.size(), 5);
+				
+	}
 
 }
