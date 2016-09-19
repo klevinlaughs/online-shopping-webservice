@@ -11,17 +11,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Embeddable
 public class Address {
 
-	@Column(nullable = false)
-	private int number;
-	@Column(nullable = false)
+	@Column(nullable=false)
+	private Integer number;
+	@Column(nullable=false)
 	private String street;
-	@Column(nullable = false)
+	@Column(nullable=false)
 	private String suburb;
-	@Column(nullable = false)
+	@Column(nullable=false)
 	private String city;
-	@Column(nullable = false)
+	@Column(nullable=false)
 	private String country;
-	@Column(nullable = false)
+	@Column(nullable=false)
 	private String zipCode;
 
 	/**
