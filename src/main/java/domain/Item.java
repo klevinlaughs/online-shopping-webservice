@@ -149,7 +149,7 @@ public class Item {
 		.append(", images:{ ");
 		Iterator<Image> imgIterator = images.iterator();
 		while(imgIterator.hasNext()){
-			sb.append("Image:" + imgIterator.next().toString() + ", ");
+			sb.append(imgIterator.next().toString() + ", ");
 		}
 		if (images.isEmpty()){
 			sb.append("}");

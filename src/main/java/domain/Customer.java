@@ -183,7 +183,7 @@ public class Customer {
 				.append(", billingAddress:" + billingAddress).append(", creditCard:" + creditCard)
 				.append(", purchaseHistory:{ ");
 		for (int i = 0; i < purchaseHistory.size(); i++) {
-			sb.append("Item:" + purchaseHistory.get(i).getName() + ", ");
+			sb.append(purchaseHistory.get(i).getName() + ", ");
 		}
 		if (purchaseHistory.isEmpty()) {
 			sb.append("}");
