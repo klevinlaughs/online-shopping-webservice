@@ -12,6 +12,9 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Transient;
@@ -53,12 +56,13 @@ public class Customer {
 	})
 	private Address billingAddress;
 	private CreditCard creditCard;
-//	@XmlJavaTypeAdapter(PurchaseHistoryAdapter.class)
-//	@XmlElementWrapper(name = "PurchaseHistory")
-//	@XmlElement(name = "Item")
+	// @XmlJavaTypeAdapter(PurchaseHistoryAdapter.class)
+	// @XmlElementWrapper(name = "PurchaseHistory")
+	// @XmlElement(name = "Item")
 	@ElementCollection
-	@OrderColumn
-	@OneToMany(fetch = FetchType.LAZY)
+	//@OrderColumn
+	@ManyToMany(fetch = FetchType.LAZY)
+	// @JoinTable(name="Customer_PurchaseHistory", joinColumns=@JoinColumn(name = "Customer_Id"),inverseJoinColumns=@JoinColumn(name="Item_Id"))
 	private List<Item> purchaseHistory = new ArrayList<Item>();
 	private DateTime joinDate;
 	@Transient
@@ -158,7 +162,7 @@ public class Customer {
 	public DateTime getJoinDate() {
 		return joinDate;
 	}
-	
+
 	public Image getProfilePic() {
 		return profilePic;
 	}
@@ -166,28 +170,23 @@ public class Customer {
 	public void setProfilePic(Image profilePic) {
 		this.profilePic = profilePic;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Customer:{ id:" + id)
-		.append(", userName:" + userName)
-		.append(", firstName:" + firstName)
-		.append(", lastName:" + lastName)
-		.append(", shippingAddress:" + shippingAddress)
-		.append(", billingAddress:" + billingAddress)
-		.append(", creditCard:" + creditCard)
-		.append(", purchaseHistory:{ ");
-		for (int i = 0; i < purchaseHistory.size(); i++){
+		sb.append("Customer:{ id:" + id).append(", userName:" + userName).append(", firstName:" + firstName)
+				.append(", lastName:" + lastName).append(", shippingAddress:" + shippingAddress)
+				.append(", billingAddress:" + billingAddress).append(", creditCard:" + creditCard)
+				.append(", purchaseHistory:{ ");
+		for (int i = 0; i < purchaseHistory.size(); i++) {
 			sb.append("Item:" + purchaseHistory.get(i).getName() + ", ");
 		}
-		if (purchaseHistory.isEmpty()){
+		if (purchaseHistory.isEmpty()) {
 			sb.append("}");
 		} else {
-			sb.replace(sb.length()-2, sb.length()-1, " }");
+			sb.replace(sb.length() - 2, sb.length() - 1, " }");
 		}
-		sb.append(", joinDate:" + joinDate.toString(DateTimeFormat.forPattern("[dd/MM/yyyy HH:mm:ss]")))
-		.append(" }");
+		sb.append(", joinDate:" + joinDate.toString(DateTimeFormat.forPattern("[dd/MM/yyyy HH:mm:ss]"))).append(" }");
 		return sb.toString();
 	}
 
