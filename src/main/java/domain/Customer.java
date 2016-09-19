@@ -54,6 +54,11 @@ public class Customer {
 		@AttributeOverride(name="zipCode", column=@Column(name="BILLING_ZIPCODE", nullable=true))
 	})
 	private Address billingAddress;
+	@AttributeOverrides({
+		@AttributeOverride(name="cardNumber", column=@Column(nullable=true)),
+		@AttributeOverride(name="expiryMonth", column=@Column(nullable=true)),
+		@AttributeOverride(name="expiryYear", column=@Column(nullable=true))
+	})
 	private CreditCard creditCard;
 	// @ElementCollection only for value types
 	@XmlJavaTypeAdapter(PurchaseHistoryAdapter.class)
