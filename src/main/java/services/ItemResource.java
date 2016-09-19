@@ -80,12 +80,18 @@ public class ItemResource {
 
 		em.getTransaction().begin();
 
+		_logger.info("Getting item count");
+
 		Long itemCount = em.createQuery("select count(*) from Item item", Long.class).getSingleResult();
+
+		_logger.info("Item count: " + itemCount);
 
 		em.getTransaction().commit();
 		em.getTransaction().begin();
 
 		URI uri = uriInfo.getAbsolutePath();
+
+		_logger.info("URI: " + uri.toString());
 
 		Link previous = null;
 		Link next = null;
@@ -119,10 +125,16 @@ public class ItemResource {
 			next = Link.fromUri(uri + "?start={start}&size={size}").rel("next").build(start + size, nextSize);
 		}
 
+		_logger.info("Querying items...");
+
 		List<Item> items = em.createQuery("select i from Item i", Item.class).setFirstResult(start).setMaxResults(size)
 				.getResultList();
 
 		em.getTransaction().commit();
+
+		for (Item item : items) {
+			_logger.info("Item retrieved: " + item);
+		}
 
 		GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {
 		};
@@ -135,6 +147,8 @@ public class ItemResource {
 			builder.links(next);
 		}
 		Response response = builder.build();
+
+		_logger.info("Returning response...");
 
 		return response;
 	}
@@ -182,6 +196,9 @@ public class ItemResource {
 		return builder.build();
 	}
 
+	/**
+	 * Method to load up the database (for testing)
+	 */
 	protected void reloadDatabase() {
 		// DatabaseUtility.openDatabase();
 		// DatabaseUtility.clearDatabase(false);
