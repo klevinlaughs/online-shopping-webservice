@@ -101,6 +101,7 @@ public class OnlineShoppingWebServiceTest {
 
 		assertEquals(items.size(), 5);
 		assertEquals(Long.valueOf(1), items.get(0).getId());
+		// TODO check links, also implement equals and hashcode for images, maybe for items?
 
 	}
 
