@@ -1,5 +1,6 @@
 package domain;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -29,7 +30,9 @@ public class Category {
 	@Column(nullable = false, unique = true)
 	private String name;
 	@XmlIDREF
-	@ManyToOne(fetch=FetchType.EAGER)
+	// @ManyToOne(fetch=FetchType.EAGER)
+	// Persist the parentCategory too
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
 	private Category parentCategory;
 
 	/**
@@ -85,14 +88,14 @@ public class Category {
 	public void setParentCategory(Category parentCategory) {
 		this.parentCategory = parentCategory;
 	}
-	
+
 	@Override
 	public String toString() {
-//		if (parentCategory == null){
-//			return "{ " + name;
-//		} else {
-//			return parentCategory.toString() + " > " + name + " }";
-//		}
+		// if (parentCategory == null){
+		// return "{ " + name;
+		// } else {
+		// return parentCategory.toString() + " > " + name + " }";
+		// }
 		return name;
 	}
 
