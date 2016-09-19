@@ -1,7 +1,5 @@
 package services;
 
-
-
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -36,12 +34,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Uses a bit of ParoleeWebServiceTest as scaffolding
+ * 
  * @author Kelvin Lau
  *
  */
 public class OnlineShoppingWebServiceTest {
 	private static final String WEB_SERVICE_URI = "http://localhost:10000/services/item";
-	
+
 	private static final Logger _logger = LoggerFactory.getLogger(OnlineShoppingWebServiceTest.class);
 
 	private static Client _client;
@@ -59,18 +58,16 @@ public class OnlineShoppingWebServiceTest {
 	 * that each test is independent; each test runs on a Web service that has
 	 * been initialised with a common set of Parolees.
 	 */
-	@Before
+	// @Before
 	public void reloadServerData() {
-		Response response = _client
-				.target(WEB_SERVICE_URI).request()
-				.put(null);
+		Response response = _client.target(WEB_SERVICE_URI).request().put(null);
 		response.close();
 
 		// Pause briefly before running any tests. Test addParoleeMovement(),
 		// for example, involves creating a timestamped value (a movement) and
-		// having the Web service compare it with data just generated with 
-		// timestamps. Joda's Datetime class has only millisecond precision, 
-		// so pause so that test-generated timestamps are actually later than 
+		// having the Web service compare it with data just generated with
+		// timestamps. Joda's Datetime class has only millisecond precision,
+		// so pause so that test-generated timestamps are actually later than
 		// timestamped values held by the Web service.
 		try {
 			Thread.sleep(10);
@@ -85,27 +82,26 @@ public class OnlineShoppingWebServiceTest {
 	public static void destroyClient() {
 		_client.close();
 	}
-	
-	//@Test
-	public void getItemsDefault() {
-//		Response response = _client.target(WEB_SERVICE_URI)
-//				.request()
-//				.accept("application/xml")
-//				.get();
-//		
-//		List<Item> items = (List<Item>) response.getEntity();
-//		
-//		response.close();
 
-		List<Item> items = _client.target(WEB_SERVICE_URI)
-				.request()
-				.accept("application/xml")
-				.get(new GenericType<List<Item>>(){});
-		
-		_logger.info("Items retrieved: " + items );
-		
+	@Test
+	public void getItemsDefault() {
+		Response response = _client.target(WEB_SERVICE_URI).request().accept("application/xml").get();
+
+		List<Item> items = response.readEntity(new GenericType<List<Item>>() {
+		});
+
+		response.close();
+
+		// List<Item> items = _client.target(WEB_SERVICE_URI)
+		// .request()
+		// .accept("application/xml")
+		// .get(new GenericType<List<Item>>(){});
+
+		_logger.info("Items retrieved: " + items);
+
 		assertEquals(items.size(), 5);
-				
+		assertEquals(Long.valueOf(1), items.get(0).getId());
+
 	}
 
 }
