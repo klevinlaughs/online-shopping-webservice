@@ -32,7 +32,7 @@ public class Item {
 
 	@Column(nullable = false)
 	private String name;
-	private int stockLevel;
+	private Integer stockLevel;
 	@Column(nullable = false)
 	private BigDecimal price;
 	@XmlJavaTypeAdapter(SingleImageAdapter.class)
@@ -42,7 +42,7 @@ public class Item {
 	private Set<Image> images = new HashSet<Image>();
 	@ManyToOne
 	private Category category;
-	private boolean dealItem = false;
+	private Boolean dealItem = false;
 
 	/**
 	 * Default constructor needed for persistent classes
@@ -89,11 +89,11 @@ public class Item {
 		this.name = name;
 	}
 
-	public int getStockLevel() {
+	public Integer getStockLevel() {
 		return stockLevel;
 	}
 
-	public void setStockLevel(int stockLevel) {
+	public void setStockLevel(Integer stockLevel) {
 		this.stockLevel = stockLevel;
 	}
 
@@ -121,11 +121,11 @@ public class Item {
 		this.category = category;
 	}
 
-	public boolean isDealItem() {
+	public Boolean isDealItem() {
 		return dealItem;
 	}
 
-	public void setDealItem(boolean dealItem) {
+	public void setDealItem(Boolean dealItem) {
 		this.dealItem = dealItem;
 	}
 
@@ -134,7 +134,7 @@ public class Item {
 	 * 
 	 * @return
 	 */
-	public double getRating() {
+	public Double getRating() {
 		// TODO
 		return 0.0;
 	}

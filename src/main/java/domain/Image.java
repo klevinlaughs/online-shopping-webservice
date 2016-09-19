@@ -39,7 +39,7 @@ public class Image {
 	 * @param height
 	 *            the height of the image
 	 */
-	public Image(String name, int width, int height) {
+	public Image(String name, Integer width, Integer height) {
 		this.name = name;
 		this.width = width;
 		this.height = height;
@@ -53,19 +53,19 @@ public class Image {
 		this.name = name;
 	}
 
-	public int getWidth() {
+	public Integer getWidth() {
 		return width;
 	}
 
-	public void setWidth(int width) {
+	public void setWidth(Integer width) {
 		this.width = width;
 	}
 
-	public int getHeight() {
+	public Integer getHeight() {
 		return height;
 	}
 
-	public void setHeight(int height) {
+	public void setHeight(Integer height) {
 		this.height = height;
 	}
 	
