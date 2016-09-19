@@ -11,28 +11,31 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import jaxb.CategoryIdAdapter;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @Entity
 public class Category {
 
+	@XmlAttribute(name = "id")
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
-	private Long id;
 	@XmlID
-	@Transient
-	private String xmlId;
+	@XmlJavaTypeAdapter(CategoryIdAdapter.class)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
 	@Column(nullable = false, unique = true)
 	private String name;
-	@XmlIDREF
-	// @ManyToOne(fetch=FetchType.EAGER)
 	// Persist the parentCategory too
 	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+	@XmlIDREF
 	private Category parentCategory;
 
 	/**
@@ -68,11 +71,6 @@ public class Category {
 		return id;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
-		xmlId = getClass().getName() + ":" + id;
-	}
-
 	public String getName() {
 		return name;
 	}
@@ -91,8 +89,8 @@ public class Category {
 
 	@Override
 	public String toString() {
-		// if (parentCategory == null){
-		// return "{ " + name;
+		// if (parentCategory == null) {
+		// return "Category:{ " + name;
 		// } else {
 		// return parentCategory.toString() + " > " + name + " }";
 		// }
