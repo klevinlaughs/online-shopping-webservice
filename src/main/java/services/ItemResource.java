@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
@@ -28,8 +26,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,7 +109,7 @@ public class ItemResource {
 			// There are more items
 			_logger.info("Making next link...");
 			int nextSize;
-			if (start + 2 * size <= itemCount){
+			if (start + 2 * size <= itemCount) {
 				// Next step has even more items after
 				nextSize = 5;
 			} else {
@@ -324,7 +320,7 @@ public class ItemResource {
 
 		// ---- PERSISTENCE ----
 		em.getTransaction().begin();
-		
+
 		em.persist(item1);
 		em.persist(item2);
 		em.persist(item3);
@@ -333,20 +329,19 @@ public class ItemResource {
 		em.persist(item6);
 		em.persist(item7);
 
+		// Also persists catElec (parent... cascade persistence)
+		em.persist(catGaming);
+		em.persist(catFoodAndDrink);
+		em.persist(catAudio);
+		em.persist(catGuns);
+
 		em.persist(customer1);
 		em.persist(customer2);
 		em.persist(customer3);
-		
-		em.persist(catElec);
-		em.persist(catAudio);
-		em.persist(catGaming);
-		em.persist(catFoodAndDrink);
-		em.persist(catGuns);
 
 		em.persist(review1);
 		em.persist(review2);
-		
-		em.getTransaction().commit();
 
+		em.getTransaction().commit();
 	}
 }
