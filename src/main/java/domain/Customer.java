@@ -6,22 +6,15 @@ import java.util.List;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
-import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -43,29 +36,35 @@ public class Customer {
 	private String userName;
 	private String firstName;
 	private String lastName;
-	@Transient
-	private Address shippingAddress;
-	@Transient
 	@AttributeOverrides({
-		@AttributeOverride(name="number", column=@Column(name="BILLING_NUMBER"/*, nullable=false*/)),
-		@AttributeOverride(name="street", column=@Column(name="BILLING_STREET"/*, nullable=false*/)),
-		@AttributeOverride(name="suburb", column=@Column(name="BILLING_SUBURB"/*, nullable=false*/)),
-		@AttributeOverride(name="city", column=@Column(name="BILLING_CITY"/*, nullable=false*/)),
-		@AttributeOverride(name="country", column=@Column(name="BILLING_COUNTRY"/*, nullable=false*/)),
-		@AttributeOverride(name="zipCode", column=@Column(name="BILLING_ZIPCODE"/*, nullable=false*/))
+		@AttributeOverride(name="number", column=@Column(name="SHIPPING_NUMBER", nullable=true)),
+		@AttributeOverride(name="street", column=@Column(name="SHIPPING_STREET", nullable=true)),
+		@AttributeOverride(name="suburb", column=@Column(name="SHIPPING_SUBURB", nullable=true)),
+		@AttributeOverride(name="city", column=@Column(name="SHIPPING_CITY", nullable=true)),
+		@AttributeOverride(name="country", column=@Column(name="SHIPPING_COUNTRY", nullable=true)),
+		@AttributeOverride(name="zipCode", column=@Column(name="SHIPPING_ZIPCODE", nullable=true))
+	})
+	private Address shippingAddress;
+	@AttributeOverrides({
+		@AttributeOverride(name="number", column=@Column(name="BILLING_NUMBER", nullable=true)),
+		@AttributeOverride(name="street", column=@Column(name="BILLING_STREET", nullable=true)),
+		@AttributeOverride(name="suburb", column=@Column(name="BILLING_SUBURB", nullable=true)),
+		@AttributeOverride(name="city", column=@Column(name="BILLING_CITY", nullable=true)),
+		@AttributeOverride(name="country", column=@Column(name="BILLING_COUNTRY", nullable=true)),
+		@AttributeOverride(name="zipCode", column=@Column(name="BILLING_ZIPCODE", nullable=true))
 	})
 	private Address billingAddress;
 	private CreditCard creditCard;
-	// @XmlJavaTypeAdapter(PurchaseHistoryAdapter.class)
+	// @ElementCollection only for value types
+	@XmlJavaTypeAdapter(PurchaseHistoryAdapter.class)
 	// @XmlElementWrapper(name = "PurchaseHistory")
 	// @XmlElement(name = "Item")
-	@ElementCollection
-	//@OrderColumn
+	@OrderColumn
 	@ManyToMany(fetch = FetchType.LAZY)
-	// @JoinTable(name="Customer_PurchaseHistory", joinColumns=@JoinColumn(name = "Customer_Id"),inverseJoinColumns=@JoinColumn(name="Item_Id"))
 	private List<Item> purchaseHistory = new ArrayList<Item>();
 	private DateTime joinDate;
-	@Transient
+	// Customer doesn't need to have a profile pic
+	@AttributeOverride(name="name", column=@Column(nullable = true))
 	private Image profilePic;
 
 	/**
