@@ -1,10 +1,10 @@
 package services;
 
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
 
 /**
  * ShopApplication for JAX-RS webservice, subclass of Application
@@ -19,8 +19,7 @@ public class ShopApplication extends Application {
 
 	public ShopApplication() {
 		// Register the ParoleeResource singleton to handle HTTP requests.
-		ItemResource resource = new ItemResource();
-		singletons.add(resource);
+		singletons.add(new ItemResource());
 
 		// Register the ContextResolver class for JAXB.
 		classes.add(ShopResolver.class);
