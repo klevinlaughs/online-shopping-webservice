@@ -1,22 +1,45 @@
 package domain;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@Embeddable
 public class Address {
-	private int number;
+
+	@Column(nullable = false)
+	private Integer number;
+	@Column(nullable = false)
 	private String street;
+	@Column(nullable = false)
 	private String suburb;
+	@Column(nullable = false)
 	private String city;
+	@Column(nullable = false)
 	private String country;
+	@Column(nullable = false)
 	private String zipCode;
 
+	/**
+	 * Default constructor needed for persistent classes
+	 */
 	protected Address() {
 	}
 
+	/**
+	 * Initializes all fields
+	 * 
+	 * @param number
+	 * @param street
+	 * @param suburb
+	 * @param city
+	 * @param country
+	 * @param zipCode
+	 */
 	public Address(int number, String street, String suburb, String city,
 			String country, String zipCode) {
 		this.number = number;
@@ -27,11 +50,11 @@ public class Address {
 		this.zipCode = zipCode;
 	}
 
-	public int getNumber() {
+	public Integer getNumber() {
 		return number;
 	}
 
-	public void setNumber(int number) {
+	public void setNumber(Integer number) {
 		this.number = number;
 	}
 
@@ -73,5 +96,14 @@ public class Address {
 
 	public void setZipCode(String zipCode) {
 		this.zipCode = zipCode;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Address:{ ").append(number + " ").append(street + " ")
+				.append(suburb + " ").append(city + " ").append(country + " ")
+				.append(zipCode + " ").append("}");
+		return sb.toString();
 	}
 }
