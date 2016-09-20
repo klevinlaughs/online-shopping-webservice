@@ -90,18 +90,27 @@ public class OnlineShoppingWebServiceTest {
 		List<Item> items = response.readEntity(new GenericType<List<Item>>() {
 		});
 
-		response.close();
+		_logger.info("Items retrieved: " + items);
 
 		// List<Item> items = _client.target(WEB_SERVICE_URI)
 		// .request()
 		// .accept("application/xml")
 		// .get(new GenericType<List<Item>>(){});
 
-		_logger.info("Items retrieved: " + items);
-
 		assertEquals(items.size(), 5);
 		assertEquals(Long.valueOf(1), items.get(0).getId());
+
 		// TODO check links, also implement equals and hashcode for images, maybe for items?
+		
+		Link previous = response.getLink("previous");
+		_logger.info("previous link: " + previous);
+		Link next = response.getLink("next");
+		_logger.info("next link: " + next);
+				
+		response.close();
+		
+		assertNull(previous);
+		assertNotNull(next);
 
 	}
 
