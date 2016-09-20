@@ -15,6 +15,7 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Link;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.client.Client;
@@ -42,7 +43,8 @@ import org.slf4j.LoggerFactory;
 public class OnlineShoppingWebServiceTest {
 	private static final String WEB_SERVICE_URI = "http://localhost:10000/services/item";
 
-	private static final Logger _logger = LoggerFactory.getLogger(OnlineShoppingWebServiceTest.class);
+	private static final Logger _logger = LoggerFactory
+			.getLogger(OnlineShoppingWebServiceTest.class);
 
 	private static Client _client;
 
@@ -84,38 +86,110 @@ public class OnlineShoppingWebServiceTest {
 		_client.close();
 	}
 
+	/**
+	 * Tests /services/items with query parameters, minimal HATEOS testing.
+	 */
 	@Test
 	public void getItemsDefault() {
-		Response response = _client.target(WEB_SERVICE_URI).request().accept("application/xml").get();
+		_logger.info("TEST: getItemsDefault");
+		Response response = _client.target(WEB_SERVICE_URI)
+				.queryParam("start", 2).queryParam("size", 3).request()
+				.accept(MediaType.APPLICATION_XML).get();
 
 		List<Item> items = response.readEntity(new GenericType<List<Item>>() {
 		});
 
 		_logger.info("Items retrieved: " + items);
 
-		// List<Item> items = _client.target(WEB_SERVICE_URI)
-		// .request()
-		// .accept("application/xml")
-		// .get(new GenericType<List<Item>>(){});
+		assertEquals(3, items.size());
+		assertEquals(Long.valueOf(3), items.get(0).getId());
 
-		assertEquals(items.size(), 5);
-		assertEquals(Long.valueOf(1), items.get(0).getId());
-
-		// TODO check links, also implement equals and hashcode for images, maybe for items?
-		
 		Link previous = response.getLink("previous");
 		_logger.info("previous link: " + previous);
 		Link next = response.getLink("next");
 		_logger.info("next link: " + next);
-				
+
 		response.close();
-		
+
+		assertNotNull(previous);
+		assertNotNull(next);
+	}
+
+	/**
+	 * Tests the default of /services/items, and also HATEOAS functionality
+	 * testing
+	 */
+	@Test
+	public void getItemsDefaultWithHATEOAS() {
+		_logger.info("TEST: getItemsDefaultWithHATEOAS");
+		Response response = _client.target(WEB_SERVICE_URI).request()
+				.accept(MediaType.APPLICATION_XML).get();
+
+		if (response.getStatus() != 200) {
+			fail("Could not get items for some reason: " + response.getStatus());
+		}
+
+		List<Item> items = response.readEntity(new GenericType<List<Item>>() {
+		});
+
+		_logger.info("Items retrieved: " + items);
+
+		assertEquals(items.size(), 5);
+		assertEquals(Long.valueOf(1), items.get(0).getId());
+
+		// TODO check links, also implement equals and hashcode for images,
+		// maybe for items?
+
+		Link previous = response.getLink("previous");
+		_logger.info("previous link: " + previous);
+		Link next = response.getLink("next");
+		_logger.info("next link: " + next);
+
+		response.close();
+
 		assertNull(previous);
 		assertNotNull(next);
-		
+
 		URI nextUri = next.getUri();
 		assertEquals(WEB_SERVICE_URI + "?start=5&size=2", nextUri.toString());
 
+		response = _client.target(nextUri).request()
+				.accept(MediaType.APPLICATION_XML).get();
+
+		if (response.getStatus() != 200) {
+			fail("Could not get items from next link for some reason: "
+					+ response.getStatus());
+		}
+
+		items = response.readEntity(new GenericType<List<Item>>() {
+		});
+
+		assertEquals(items.size(), 2);
+		assertEquals(Long.valueOf(6), items.get(0).getId());
+
+		previous = response.getLink("previous");
+		_logger.info("previous link: " + previous);
+		next = response.getLink("next");
+		_logger.info("next link: " + next);
+
+		response.close();
+
+		assertNotNull(previous);
+		assertNull(next);
+	}
+
+	/**
+	 * Test to get an item by id
+	 */
+	@Test
+	public void getItemById() {
+		_logger.info("TEST: getItemById");
+		Item item = _client.target(WEB_SERVICE_URI + "/{id}")
+				.resolveTemplate("id", 5).request()
+				.accept(MediaType.APPLICATION_XML).get(Item.class);
+		
+		assertEquals(Long.valueOf(5), item.getId());
+		assertEquals("Pepsi 2.5L", item.getName());
 	}
 
 }
