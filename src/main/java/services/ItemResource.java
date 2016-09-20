@@ -21,6 +21,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Link;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -45,9 +46,11 @@ import domain.Review;
  */
 @Path("/item")
 public class ItemResource {
-	private static final Logger _logger = LoggerFactory.getLogger(ItemResource.class);
+	private static final Logger _logger = LoggerFactory
+			.getLogger(ItemResource.class);
 
-	private static EntityManager em = PersistenceManager.instance().createEntityManager();
+	private static EntityManager em = PersistenceManager.instance()
+			.createEntityManager();
 
 	public ItemResource() {
 		reloadDatabase();
@@ -57,14 +60,14 @@ public class ItemResource {
 	 * Convenience method for testing the Web service. This method reinitialises
 	 * the state of the Web service to holds three Parolee objects.
 	 */
-	@PUT
-	public void reloadData() {
-		reloadDatabase();
-	}
+	// @PUT
+	// public void reloadData() {
+	// reloadDatabase();
+	// }
 
 	/**
 	 * HATEOS for getting items, only want 5 items by default, starting at index
-	 * 0
+	 * 0, and a category is included
 	 * 
 	 * @param start
 	 * @param size
@@ -72,9 +75,11 @@ public class ItemResource {
 	 * @return
 	 */
 	@GET
-	@Produces("application/xml")
+	@Produces(MediaType.APPLICATION_XML)
 	public Response getItems(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @Context UriInfo uriInfo) {
+			@DefaultValue("5") @QueryParam("size") int size,
+			@DefaultValue("none") @QueryParam("category") String category,
+			@Context UriInfo uriInfo) {
 
 		_logger.info("Getting items");
 
@@ -82,7 +87,8 @@ public class ItemResource {
 
 		_logger.info("Getting item count");
 
-		Long itemCount = em.createQuery("select count(*) from Item item", Long.class).getSingleResult();
+		Long itemCount = em.createQuery("select count(*) from Item item",
+				Long.class).getSingleResult();
 
 		_logger.info("Item count: " + itemCount);
 
@@ -109,9 +115,12 @@ public class ItemResource {
 				// afterwards
 				newStart = 0;
 			}
-			previous = Link.fromUri(uri + "?start={start}&size={size}").rel("prev").build(newStart, size);
+			// Use default size if reached the end :(
+			int newSize = start + size >= itemCount ? 5 : size;
+			previous = Link.fromUri(uri + "?start={start}&size={size}")
+					.rel("previous").build(newStart, newSize);
 		}
-		if (start + size <= itemCount) {
+		if (start + size < itemCount) {
 			// There are more items
 			_logger.info("Making next link...");
 			int nextSize;
@@ -122,13 +131,14 @@ public class ItemResource {
 				// Next step doesn't have anymore after
 				nextSize = (int) (itemCount - start - size);
 			}
-			next = Link.fromUri(uri + "?start={start}&size={size}").rel("next").build(start + size, nextSize);
+			next = Link.fromUri(uri + "?start={start}&size={size}").rel("next")
+					.build(start + size, nextSize);
 		}
 
 		_logger.info("Querying items...");
 
-		List<Item> items = em.createQuery("select i from Item i", Item.class).setFirstResult(start).setMaxResults(size)
-				.getResultList();
+		List<Item> items = em.createQuery("select i from Item i", Item.class)
+				.setFirstResult(start).setMaxResults(size).getResultList();
 
 		em.getTransaction().commit();
 
@@ -154,6 +164,17 @@ public class ItemResource {
 	}
 
 	/**
+	 * Creates a new item (TODO add some sort of auth or admin check)
+	 * 
+	 * @param item
+	 */
+	@POST
+	@Consumes(MediaType.APPLICATION_XML)
+	public void createItem(Item item) {
+
+	}
+
+	/**
 	 * Gets item by id
 	 * 
 	 * @param id
@@ -162,13 +183,46 @@ public class ItemResource {
 	 */
 	@GET
 	@Path("{id}")
-	@Produces("application/xml")
+	@Produces(MediaType.APPLICATION_XML)
 	public Item getItemById(@PathParam("id") long id) {
 		em.getTransaction().begin();
 		Item item = em.find(Item.class, id);
 		em.getTransaction().commit();
 
 		return item;
+	}
+
+	/**
+	 * Gets the images for an item
+	 * 
+	 * @param id
+	 *            the id of the item
+	 * @return Set<Image> of images
+	 */
+	@GET
+	@Path("{id}/images")
+	@Produces(MediaType.APPLICATION_XML)
+	public Set<Image> getImagesForItem(@PathParam("id") long id) {
+
+		em.getTransaction().begin();
+		Set<Image> images = em.find(Item.class, id).getImages();
+		em.getTransaction().commit();
+
+		return images;
+	}
+
+	@GET
+	@Path("{id}/review")
+	@Produces(MediaType.APPLICATION_XML)
+	public List<Review> getReviewsForItem(@PathParam("id") long id) {
+
+		em.getTransaction().begin();
+		List<Review> reviews = em
+				.createQuery("SELECT r FROM Review r WHERE r.item.id = :id",
+						Review.class).setParameter("id", id).getResultList();
+		em.getTransaction().commit();
+
+		return reviews;
 	}
 
 	/**
@@ -183,9 +237,12 @@ public class ItemResource {
 	 */
 	@GET
 	@Path("deals")
-	@Produces("application/xml")
-	public Response getItemsToday(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("3") @QueryParam("size") int size, @Context UriInfo uriInfo) {
+	@Produces(MediaType.APPLICATION_XML)
+	public Response getItemsToday(
+			@DefaultValue("0") @QueryParam("start") int start,
+			@DefaultValue("3") @QueryParam("size") int size,
+			@DefaultValue("none") @QueryParam("category") String category,
+			@Context UriInfo uriInfo) {
 
 		URI uri = uriInfo.getAbsolutePath();
 
@@ -214,7 +271,8 @@ public class ItemResource {
 		Item item2 = new Item("Gatorade", new BigDecimal("3.99"));
 		item2.setStockLevel(30);
 
-		Item item3 = new Item("7.1 Surround Sound Gaming Headset", new BigDecimal("240"));
+		Item item3 = new Item("7.1 Surround Sound Gaming Headset",
+				new BigDecimal("240"));
 		item3.setStockLevel(0);
 
 		Item item4 = new Item("Box of Tissues", new BigDecimal("2.49"));
@@ -251,9 +309,11 @@ public class ItemResource {
 		customer1.setFirstName("John");
 		customer1.setLastName("Doe");
 		customer1.setProfilePic(new Image("this-is-me.jpg"));
-		customer1.setShippingAddress(new Address(123, "Sneaky Road", "Plum Hill", "BoomCity", "Japanda", "20580"));
+		customer1.setShippingAddress(new Address(123, "Sneaky Road",
+				"Plum Hill", "BoomCity", "Japanda", "20580"));
 		customer1.setBillingAddress(customer1.getShippingAddress());
-		customer1.setCreditCard(new CreditCard("123456789", "November", "2020"));
+		customer1
+				.setCreditCard(new CreditCard("123456789", "November", "2020"));
 		customer1.addToPurchaseHistory(item7);
 		customer1.addToPurchaseHistory(item5);
 		customer1.addToPurchaseHistory(item3);
@@ -269,7 +329,10 @@ public class ItemResource {
 
 		// ---- REVIEWS SET UP ----
 		Review review1 = new Review(customer1, item7, 5.0);
-		Review review2 = new Review(customer1, item1, 1.0, "Fake!! Don't buy! You have been warned!");
+		Review review2 = new Review(customer1, item1, 1.0,
+				"Fake!! Don't buy! You have been warned!");
+		Review review3 = new Review(customer3, item1, 5.0,
+				"It workes pretty well, did its job. :)");
 
 		// ---- PERSISTENCE ----
 		em.getTransaction().begin();
@@ -294,6 +357,7 @@ public class ItemResource {
 
 		em.persist(review1);
 		em.persist(review2);
+		em.persist(review3);
 
 		em.getTransaction().commit();
 	}
