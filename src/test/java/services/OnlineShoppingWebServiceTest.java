@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
@@ -111,6 +112,9 @@ public class OnlineShoppingWebServiceTest {
 		
 		assertNull(previous);
 		assertNotNull(next);
+		
+		URI nextUri = next.getUri();
+		assertEquals(WEB_SERVICE_URI + "?start=5&size=2", nextUri.toString());
 
 	}
 
