@@ -187,9 +187,26 @@ public class OnlineShoppingWebServiceTest {
 		Item item = _client.target(WEB_SERVICE_URI + "/{id}")
 				.resolveTemplate("id", 5).request()
 				.accept(MediaType.APPLICATION_XML).get(Item.class);
-		
+
 		assertEquals(Long.valueOf(5), item.getId());
 		assertEquals("Pepsi 2.5L", item.getName());
+	}
+
+	// TODO category
+
+	/**
+	 * Test to get reviews for an item (TODO test hateoas)
+	 */
+	@Test
+	public void getReviewsForItem() {
+		_logger.info("TEST: getReviewsForItem");
+		Set<Review> reviews = _client.target(WEB_SERVICE_URI + "/{id}/review")
+				.resolveTemplate("id", 1).request()
+				.accept(MediaType.APPLICATION_XML)
+				.get(new GenericType<Set<Review>>() {
+				});
+		
+		assertEquals(2, reviews.size());
 	}
 
 }
