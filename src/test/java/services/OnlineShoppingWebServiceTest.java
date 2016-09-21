@@ -23,6 +23,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.InvocationCallback;
+import javax.ws.rs.client.WebTarget;
 
 import domain.*;
 
@@ -99,7 +101,7 @@ public class OnlineShoppingWebServiceTest {
 		Response response = _client.target(WEB_SERVICE_URI + "/item")
 				.queryParam("start", 2).queryParam("size", 3).request()
 				.accept(MediaType.APPLICATION_XML).get();
-		
+
 		int status = response.getStatus();
 
 		if (status != 200) {
@@ -151,9 +153,6 @@ public class OnlineShoppingWebServiceTest {
 		assertEquals(items.size(), 5);
 		assertEquals(Long.valueOf(1), items.get(0).getId());
 
-		// TODO check links, also implement equals and hashcode for images,
-		// maybe for items?
-
 		Link previous = response.getLink("previous");
 		_logger.info("previous link: " + previous);
 		Link next = response.getLink("next");
@@ -194,6 +193,41 @@ public class OnlineShoppingWebServiceTest {
 	}
 
 	/**
+	 * Test whether you can get an item by id
+	 */
+	@Test
+	public void getItemsByCategory() {
+		_logger.info("TEST: getItemByCategory");
+		Response response = _client.target(WEB_SERVICE_URI + "/item")
+				.queryParam("category", "Food_And_Drink").request()
+				.accept(MediaType.APPLICATION_XML).get();
+
+		int status = response.getStatus();
+
+		if (status != 200) {
+			response.close();
+			fail("Could not get items for some reason: " + status);
+		}
+
+		List<Item> items = response.readEntity(new GenericType<List<Item>>() {
+		});
+
+		_logger.info("Items retrieved: " + items);
+
+		assertEquals(2, items.size());
+
+		Link previous = response.getLink("previous");
+		_logger.info("previous link: " + previous);
+		Link next = response.getLink("next");
+		_logger.info("next link: " + next);
+
+		response.close();
+
+		assertNull(previous);
+		assertNull(next);
+	}
+
+	/**
 	 * Test to get an item by id
 	 */
 	@Test
@@ -224,10 +258,56 @@ public class OnlineShoppingWebServiceTest {
 
 	}
 
-	// TODO category
+	/**
+	 * Test to get images for an item
+	 */
+	@Test
+	public void getImagesForItem() {
+		_logger.info("TEST: getImagesForItem");
+		List<Image> images = _client
+				.target(WEB_SERVICE_URI + "/item/{id}/image")
+				.resolveTemplate("id", 1).request()
+				.accept(MediaType.APPLICATION_XML)
+				.get(new GenericType<List<Image>>() {
+				});
+
+		assertEquals(2, images.size());
+		assertEquals("ps4.jpg", images.get(0).getName());
+		assertEquals("xbox.png", images.get(1).getName());
+		assertEquals(Integer.valueOf(1024), images.get(0).getWidth());
+		assertEquals(Integer.valueOf(768), images.get(0).getHeight());
+		assertNull(images.get(1).getHeight());
+		assertNull(images.get(1).getWidth());
+	}
 
 	/**
-	 * Test to get reviews for an item (TODO test hateoas)
+	 * Test adding image to item
+	 */
+	@Test
+	public void addImageToItem() {
+		Image image = new Image("test.png");
+
+		Response response = _client.target(WEB_SERVICE_URI + "/item/{id}/image")
+				.resolveTemplate("id", 2).request()
+				.accept(MediaType.APPLICATION_XML).post(Entity.xml(image));
+
+		int status = response.getStatus();
+		response.close();
+
+		if (status != 204) {
+			fail("Couldn't add image to item");
+		}
+
+		Item item = _client.target(WEB_SERVICE_URI + "/item/{id}")
+				.resolveTemplate("id", 2).request()
+				.accept(MediaType.APPLICATION_XML).get(Item.class);
+
+		assertEquals(1, item.getImages().size());
+		assertEquals("test.png", item.getImages().iterator().next().getName());
+	}
+
+	/**
+	 * Test to get reviews for an item
 	 */
 	@Test
 	public void getReviewsForItem() {
@@ -240,6 +320,61 @@ public class OnlineShoppingWebServiceTest {
 				});
 
 		assertEquals(2, reviews.size());
+	}
+
+	/**
+	 * Test to delete an item
+	 */
+	@Test
+	public void deleteItem() {
+		_logger.info("TEST: deleteItem");
+
+		Response response = _client.target(WEB_SERVICE_URI + "/item/{id}")
+				.resolveTemplate("id", 4).request().delete();
+
+		int status = response.getStatus();
+		response.close();
+
+		if (status != 204) {
+			fail("Could not delete item 1");
+		}
+
+		response = _client.target(WEB_SERVICE_URI + "/item/{id}")
+				.resolveTemplate("id", 4).request().get();
+		
+		assertEquals(404, response.getStatus());
+		response.close();
+	}
+
+	/**
+	 * Test for async responses
+	 */
+	@Test
+	public void testAsyncWatchList() {
+		_logger.info("TEST: testAsyncWatchList");
+		Client watchClient = ClientBuilder.newClient();
+		final WebTarget target = watchClient
+				.target(WEB_SERVICE_URI + "/item/{id}/watch")
+				.resolveTemplate("id", 1);
+		target.request().async().get(new InvocationCallback<Item>() {
+
+			@Override
+			public void completed(Item response) {
+				_logger.info("Notified of item set to be deal : " + response);
+			}
+
+			@Override
+			public void failed(Throwable throwable) {
+			}
+
+		});
+
+		Response response = _client.target(WEB_SERVICE_URI + "/item/{id}/deal")
+				.resolveTemplate("id", 1).request().put(Entity.xml("true"));
+
+		assertEquals(204, response.getStatus());
+
+		response.close();
 	}
 
 	// ----------------------------- CUSTOMER TESTS ----------------------------
@@ -292,4 +427,29 @@ public class OnlineShoppingWebServiceTest {
 		assertEquals(400, status);
 	}
 
+	/**
+	 * Test to create customer
+	 */
+	@Test
+	public void createCustomer() {
+		Customer customer = new Customer("Bob");
+		Response response = _client.target(WEB_SERVICE_URI + "/customer")
+				.request().post(Entity.xml(customer));
+
+		int status = response.getStatus();
+		Map<String, NewCookie> cookies = response.getCookies();
+		response.close();
+
+		assertEquals("Bob", cookies.get("username").getValue());
+		assertEquals(201, status);
+
+		// logout since automatic login
+		response = _client.target(WEB_SERVICE_URI + "/customer/logout")
+				.request().get();
+		cookies = response.getCookies();
+		response.close();
+
+		// Max age is 0 means deleted
+		assertEquals(0, cookies.get("username").getMaxAge());
+	}
 }

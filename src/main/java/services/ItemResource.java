@@ -3,15 +3,18 @@ package services;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.CookieParam;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -19,6 +22,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Link;
@@ -27,7 +32,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +57,9 @@ public class ItemResource {
 	private static EntityManager em = PersistenceManager.instance()
 			.createEntityManager();
 
+	// multivaluedmap for async responses
+	private Map<Long, List<AsyncResponse>> watchListResponses = new HashMap<Long, List<AsyncResponse>>();
+
 	public ItemResource() {
 		reloadDatabase();
 	}
@@ -73,6 +80,7 @@ public class ItemResource {
 	 * @param start
 	 * @param size
 	 * @param uriInfo
+	 * @param category
 	 * @return
 	 */
 	@GET
@@ -84,12 +92,18 @@ public class ItemResource {
 
 		_logger.info("Getting items");
 
+		String categoryQuery = "";
+		if (!category.equals("none")) {
+			categoryQuery = " WHERE item.category.name = '" + category + "'";
+		}
+
 		em.getTransaction().begin();
 
 		_logger.info("Getting item count");
 
 		Long itemCount = em
-				.createQuery("select count(*) from Item item", Long.class)
+				.createQuery("select count(*) from Item item" + categoryQuery,
+						Long.class)
 				.getSingleResult();
 
 		_logger.info("Item count: " + itemCount);
@@ -104,7 +118,9 @@ public class ItemResource {
 
 		_logger.info("Querying items...");
 
-		List<Item> items = em.createQuery("select i from Item i", Item.class)
+		List<Item> items = em
+				.createQuery("select item from Item item" + categoryQuery,
+						Item.class)
 				.setFirstResult(start).setMaxResults(size).getResultList();
 
 		em.getTransaction().commit();
@@ -128,13 +144,17 @@ public class ItemResource {
 	}
 
 	/**
-	 * Creates a new item (TODO add some sort of auth or admin check)
+	 * Creates a new item
 	 * 
 	 * @param item
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_XML)
 	public void createItem(Item item) {
+
+		em.getTransaction().begin();
+		em.persist(item);
+		em.getTransaction().commit();
 
 	}
 
@@ -164,6 +184,30 @@ public class ItemResource {
 	}
 
 	/**
+	 * Deletes an item along with its reviews
+	 * 
+	 * @param id
+	 */
+	@DELETE
+	@Path("{id}")
+	public void deleteItemById(@PathParam("id") long id) {
+		em.getTransaction().begin();
+		List<Review> reviewsForItem = em
+				.createQuery("SELECT r FROM Review r WHERE r.item.id = :id",
+						Review.class)
+				.setParameter("id", id).getResultList();
+		if (!reviewsForItem.isEmpty()) {
+			for (Review review : reviewsForItem) {
+				em.remove(review);
+			}
+		}
+
+		Item item = em.find(Item.class, id);
+		em.remove(item);
+		em.getTransaction().commit();
+	}
+
+	/**
 	 * Gets the images for an item
 	 * 
 	 * @param id
@@ -171,40 +215,176 @@ public class ItemResource {
 	 * @return Set<Image> of images
 	 */
 	@GET
-	@Path("{id}/images")
+	@Path("{id}/image")
 	@Produces(MediaType.APPLICATION_XML)
-	public Set<Image> getImagesForItem(@PathParam("id") long id) {
+	public List<Image> getImagesForItem(@PathParam("id") long id) {
 
 		em.getTransaction().begin();
 		Set<Image> images = em.find(Item.class, id).getImages();
 		em.getTransaction().commit();
 
-		return images;
+		List<Image> imageList = new ArrayList<Image>(images);
+
+		return imageList;
 	}
 
+	/**
+	 * Adds image to specified item
+	 * 
+	 * @param id
+	 * @param image
+	 */
+	@POST
+	@Path("{id}/image")
+	@Consumes(MediaType.APPLICATION_XML)
+	public void addImageForItem(@PathParam("id") long id, Image image) {
+		em.getTransaction().begin();
+		Item item = em.find(Item.class, id);
+		item.addImage(image);
+		em.persist(item);
+		em.getTransaction().commit();
+	}
+
+	/**
+	 * 
+	 * Gets the reviews for an item with HATEOAS
+	 * 
+	 * @param id
+	 *            item id
+	 * @param start
+	 * @param size
+	 * @param uriInfo
+	 * @return
+	 */
 	@GET
 	@Path("{id}/review")
 	@Produces(MediaType.APPLICATION_XML)
-	public List<Review> getReviewsForItem(@PathParam("id") long id) {
+	public Response getReviewsForItem(@PathParam("id") long id,
+			@QueryParam("start") int start, @QueryParam("size") int size,
+			@Context UriInfo uriInfo) {
+
+		URI uri = uriInfo.getAbsolutePath();
 
 		em.getTransaction().begin();
+
+		Long count = em.createQuery(
+				"select count(*) from Review r where r.item.id = :id",
+				Long.class).setParameter("id", id).getSingleResult();
+
+		em.getTransaction().commit();
+
+		Link previous = createPreviousHATEOAS(start, size, 3, count, uri);
+		Link next = createNextHATEOAS(start, size, 3, count, uri);
+
+		em.getTransaction().begin();
+
 		List<Review> reviews = em
 				.createQuery("SELECT r FROM Review r WHERE r.item.id = :id",
 						Review.class)
+				.setFirstResult(start).setMaxResults(size)
 				.setParameter("id", id).getResultList();
 		em.getTransaction().commit();
 
-		return reviews;
+		GenericEntity<List<Review>> entity = new GenericEntity<List<Review>>(
+				reviews) {
+		};
+
+		ResponseBuilder builder = Response.ok(entity);
+		if (previous != null) {
+			builder.links(previous);
+		}
+		if (next != null) {
+			builder.links(next);
+		}
+		return builder.build();
+	}
+
+	/**
+	 * Creates a review for an item
+	 * 
+	 * @param cookie
+	 * @param id
+	 * @param review
+	 */
+	@POST
+	@Path("/{id}/review")
+	public void createReviewForItem(@CookieParam("username") String cookie,
+			@PathParam("id") long id, Review review) {
+
+		if (cookie == null) {
+			throw new NotAuthorizedException("Must login to review");
+		}
+		em.getTransaction().begin();
+		em.persist(review);
+		em.getTransaction().commit();
+	}
+
+	/**
+	 * Gets categories with HATEOAS
+	 * 
+	 * @param start
+	 * @param size
+	 * @return
+	 */
+	@GET
+	@Path("category")
+	public Response getCategories(
+			@DefaultValue("0") @QueryParam("start") int start,
+			@DefaultValue("5") @QueryParam("size") int size,
+			@Context UriInfo uriInfo) {
+
+		em.getTransaction().begin();
+		URI uri = uriInfo.getAbsolutePath();
+
+		Long count = em
+				.createQuery("select count(*) from Category c", Long.class)
+				.getSingleResult();
+
+		Link previous = createPreviousHATEOAS(start, size, 5, count, uri);
+		Link next = createNextHATEOAS(start, size, 5, count, uri);
+
+		List<Category> categories = em
+				.createQuery("SELECT c FROM Category c", Category.class)
+				.setFirstResult(start).setMaxResults(size).getResultList();
+
+		em.getTransaction().commit();
+
+		GenericEntity<List<Category>> entity = new GenericEntity<List<Category>>(
+				categories) {
+		};
+
+		ResponseBuilder builder = Response.ok(entity);
+		if (previous != null) {
+			builder.links(previous);
+		}
+		if (next != null) {
+			builder.links(next);
+		}
+		return builder.build();
+	}
+
+	/**
+	 * Creates a category
+	 * 
+	 * @param category
+	 */
+	@POST
+	@Path("category")
+	@Consumes(MediaType.APPLICATION_XML)
+	public void createCategory(Category category) {
+		em.getTransaction().begin();
+		em.persist(category);
+		em.getTransaction().commit();
 	}
 
 	/**
 	 * 
 	 * @param start
-	 *            - the starting index (default 1)
+	 *            the starting index (default 1)
 	 * @param size
-	 *            - the amount of deals to get (default 3)
+	 *            the amount of deals to get (default 3)
 	 * @param category
-	 *            - the category
+	 *            the category
 	 * @param uriInfo
 	 * @return
 	 */
@@ -217,13 +397,112 @@ public class ItemResource {
 			@DefaultValue("none") @QueryParam("category") String category,
 			@Context UriInfo uriInfo) {
 
+		_logger.info("Getting items");
+
+		em.getTransaction().begin();
+
+		_logger.info("Getting item count");
+
+		String categoryQuery = "";
+		if (!category.equals("none")) {
+			categoryQuery = " AND item.category.name = '" + category + "'";
+		}
+
+		Long itemCount = em.createQuery(
+				"select count(*) from Item item WHERE item.dealItem = true"
+						+ categoryQuery,
+				Long.class).getSingleResult();
+
+		_logger.info("Item count: " + itemCount);
+
+		em.getTransaction().commit();
+		em.getTransaction().begin();
+
 		URI uri = uriInfo.getAbsolutePath();
 
-		Link previous = null;
-		Link next = null;
+		Link previous = createPreviousHATEOAS(start, size, 5, itemCount, uri);
+		Link next = createNextHATEOAS(start, size, 5, itemCount, uri);
 
-		ResponseBuilder builder = Response.ok();
+		_logger.info("Querying items...");
+
+		List<Item> items = em
+				.createQuery(
+						"select item from Item item WHERE item.dealItem = true"
+								+ categoryQuery,
+						Item.class)
+				.setFirstResult(start).setMaxResults(size).getResultList();
+
+		em.getTransaction().commit();
+
+		for (Item item : items) {
+			_logger.info("Item retrieved: " + item);
+		}
+
+		GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(
+				items) {
+		};
+
+		ResponseBuilder builder = Response.ok(entity);
+		if (previous != null) {
+			builder.links(previous);
+		}
+		if (next != null) {
+			builder.links(next);
+		}
 		return builder.build();
+	}
+
+	/**
+	 * Sets specified item to deal. It also responds to the async responses that
+	 * are watching the item for a deal
+	 * 
+	 * @param id
+	 *            item id
+	 * @param isDeal
+	 */
+	@PUT
+	@Path("{id}/deal")
+	public void setDealItem(@PathParam("id") long id, String isDeal) {
+		_logger.info("Setting deal on item:" + id + " as " + isDeal);
+		em.getTransaction().begin(); 
+		Item item = em.find(Item.class, id);
+		item.setDealItem(Boolean.valueOf(isDeal));
+		em.persist(item);
+		em.getTransaction().commit();
+
+		if (Boolean.valueOf(isDeal)) {
+			_logger.info("DEAL ALERT!!!");
+			List<AsyncResponse> watchers = watchListResponses.get(id);
+			if (watchers != null) {
+				for (AsyncResponse toRespond : watchers) {
+					_logger.info("Alerting watchers...");
+					toRespond.resume(item);
+				}
+				watchers.clear();
+			}
+		}
+	}
+
+	/**
+	 * Adds an item to a client's watch list, async response to notify
+	 * 
+	 * @param id
+	 * @param asyncResponse
+	 */
+	@GET
+	@Path("{id}/watch")
+	public void addToWatchList(@PathParam("id") long id,
+			@Suspended AsyncResponse asyncResponse) {
+		_logger.info("Adding an item to a client's watchlist...");
+		List<AsyncResponse> listOfResponses = watchListResponses.get(id);
+		
+		try {
+			listOfResponses.add(asyncResponse);
+		} catch (NullPointerException e){
+			listOfResponses = new ArrayList<AsyncResponse>();
+			listOfResponses.add(asyncResponse);
+			watchListResponses.put(id, listOfResponses);
+		}
 	}
 
 	/**
@@ -335,10 +614,10 @@ public class ItemResource {
 		item7.setStockLevel(1);
 
 		// ---- CATEGORIES SET UP ----
-		Category catElec = new Category("Electronics");
-		Category catAudio = new Category("Audio", catElec);
-		Category catGaming = new Category("Gaming", catElec);
-		Category catFoodAndDrink = new Category("Food and Drink");
+		// Category catElec = new Category("Electronics");
+		Category catAudio = new Category("Audio"/* , catElec */);
+		Category catGaming = new Category("Gaming"/* , catElec */);
+		Category catFoodAndDrink = new Category("Food_And_Drink");
 		Category catGuns = new Category("Guns");
 		// TODO more categories?
 

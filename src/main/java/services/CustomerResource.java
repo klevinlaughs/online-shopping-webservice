@@ -1,11 +1,17 @@
 package services;
 
+import java.net.URI;
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -18,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import domain.Customer;
+import domain.Item;
+import domain.Review;
 
 @Path("/customer")
 public class CustomerResource {
@@ -38,11 +46,15 @@ public class CustomerResource {
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_XML)
-	public void createCustomer(Customer customer) {
+	public Response createCustomer(Customer customer) {
 		_logger.info("Creating user...");
 		em.getTransaction().begin();
 		em.persist(customer);
 		em.getTransaction().commit();
+
+		return Response.created(URI.create("/parolees/" + customer.getId()))
+				.cookie(new NewCookie("username", customer.getUserName()))
+				.build();
 	}
 
 	/**
@@ -103,10 +115,26 @@ public class CustomerResource {
 	 */
 	@GET
 	@Path("{id}")
-	public Customer getCustomerById(@CookieParam("username") Cookie cookie,
+	public Customer getCustomerById(@CookieParam("username") String cookie,
 			@PathParam("id") long id) {
 
-		return null;
+		if (cookie == null) {
+			throw new NotAuthorizedException("Must login to view profiles");
+		}
+
+		em.getTransaction().begin();
+		Customer customer = em.find(Customer.class, id);
+		em.getTransaction().commit();
+
+		if (customer == null) {
+			throw new NotFoundException();
+		}
+
+		if (!customer.getUserName().equals(cookie)) {
+			throw new ForbiddenException("Not allowed to view another user");
+		}
+
+		return customer;
 	}
 
 	/**
@@ -120,9 +148,90 @@ public class CustomerResource {
 	@GET
 	@Path("{username}")
 	public Customer getCustomerByUsername(
-			@CookieParam("username") Cookie cookie,
+			@CookieParam("username") String cookie,
 			@PathParam("username") String username) {
-		return null;
+
+		if (cookie == null) {
+			throw new NotAuthorizedException("Must login to view profiles");
+		}
+
+		if (!username.equals(cookie)) {
+			throw new ForbiddenException("Not allowed to view another user");
+		}
+
+		em.getTransaction().begin();
+		Customer customer = em
+				.createQuery(
+						"SELECT c FROM Customer c WHERE c.userName = :username",
+						Customer.class)
+				.setParameter("username", username).getSingleResult();
+		em.getTransaction().commit();
+
+		if (customer == null) {
+			throw new NotFoundException();
+		}
+
+		return customer;
 	}
 
+	/**
+	 * Gets reviews made by a logged in customer
+	 * 
+	 * @param username
+	 *            the username from cookie
+	 * @return
+	 */
+	@GET
+	@Path("review")
+	public List<Review> getReviewsForCustomer(
+			@CookieParam("username") String username) {
+
+		if (username == null) {
+			throw new NotAuthorizedException("Login to see your reviews");
+		}
+
+		em.getTransaction().begin();
+
+		List<Review> reviews = em
+				.createQuery(
+						"SELECT r FROM Review r WHERE r.reviewer.userName = :username",
+						Review.class)
+				.setParameter(username, username).getResultList();
+
+		em.getTransaction().commit();
+
+		// return even if empty
+		return reviews;
+	}
+
+	/**
+	 * Gets the purchase history for a logged in customer
+	 * 
+	 * @param username
+	 *            the username from cookie
+	 * @return
+	 */
+	@GET
+	@Path("purchase-history")
+	public List<Item> getPurchaseHistoryForCustomer(
+			@CookieParam("username") String username) {
+
+		if (username == null) {
+			throw new NotAuthorizedException(
+					"Login to see your purchase history");
+		}
+
+		em.getTransaction().begin();
+
+		List<Item> purchaseHistory = em
+				.createQuery(
+						"SELECT c.purchaseHistory from Customer c where c.username = :username",
+						Item.class)
+				.setParameter("username", username).getResultList();
+
+		em.getTransaction().commit();
+
+		// return even if empty
+		return purchaseHistory;
+	}
 }
