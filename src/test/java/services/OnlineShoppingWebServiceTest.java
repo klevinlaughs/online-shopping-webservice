@@ -9,6 +9,7 @@ import static org.junit.Assert.fail;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.core.Cookie;
@@ -17,6 +18,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -41,7 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class OnlineShoppingWebServiceTest {
-	private static final String WEB_SERVICE_URI = "http://localhost:10000/services/item";
+	private static final String WEB_SERVICE_URI = "http://localhost:10000/services";
 
 	private static final Logger _logger = LoggerFactory
 			.getLogger(OnlineShoppingWebServiceTest.class);
@@ -86,15 +88,24 @@ public class OnlineShoppingWebServiceTest {
 		_client.close();
 	}
 
+	// ------------------------------ ITEMS TEST ------------------------------
+
 	/**
 	 * Tests /services/items with query parameters, minimal HATEOS testing.
 	 */
 	@Test
 	public void getItemsDefault() {
 		_logger.info("TEST: getItemsDefault");
-		Response response = _client.target(WEB_SERVICE_URI)
+		Response response = _client.target(WEB_SERVICE_URI + "/item")
 				.queryParam("start", 2).queryParam("size", 3).request()
 				.accept(MediaType.APPLICATION_XML).get();
+		
+		int status = response.getStatus();
+
+		if (status != 200) {
+			response.close();
+			fail("Could not get items for some reason: " + status);
+		}
 
 		List<Item> items = response.readEntity(new GenericType<List<Item>>() {
 		});
@@ -122,11 +133,14 @@ public class OnlineShoppingWebServiceTest {
 	@Test
 	public void getItemsDefaultWithHATEOAS() {
 		_logger.info("TEST: getItemsDefaultWithHATEOAS");
-		Response response = _client.target(WEB_SERVICE_URI).request()
+		Response response = _client.target(WEB_SERVICE_URI + "/item").request()
 				.accept(MediaType.APPLICATION_XML).get();
 
-		if (response.getStatus() != 200) {
-			fail("Could not get items for some reason: " + response.getStatus());
+		int status = response.getStatus();
+
+		if (status != 200) {
+			response.close();
+			fail("Could not get items for some reason: " + status);
 		}
 
 		List<Item> items = response.readEntity(new GenericType<List<Item>>() {
@@ -151,7 +165,8 @@ public class OnlineShoppingWebServiceTest {
 		assertNotNull(next);
 
 		URI nextUri = next.getUri();
-		assertEquals(WEB_SERVICE_URI + "?start=5&size=2", nextUri.toString());
+		assertEquals(WEB_SERVICE_URI + "/item?start=5&size=2",
+				nextUri.toString());
 
 		response = _client.target(nextUri).request()
 				.accept(MediaType.APPLICATION_XML).get();
@@ -184,12 +199,29 @@ public class OnlineShoppingWebServiceTest {
 	@Test
 	public void getItemById() {
 		_logger.info("TEST: getItemById");
-		Item item = _client.target(WEB_SERVICE_URI + "/{id}")
+		Item item = _client.target(WEB_SERVICE_URI + "/item/{id}")
 				.resolveTemplate("id", 5).request()
 				.accept(MediaType.APPLICATION_XML).get(Item.class);
 
 		assertEquals(Long.valueOf(5), item.getId());
 		assertEquals("Pepsi 2.5L", item.getName());
+	}
+
+	/**
+	 * Test to get non existent item by id
+	 */
+	@Test
+	public void getBadItem() {
+		_logger.info("TEST: getBadItem");
+
+		Response response = _client.target(WEB_SERVICE_URI + "/item/{id}")
+				.resolveTemplate("id", 99).request()
+				.accept(MediaType.APPLICATION_XML).get();
+		int status = response.getStatus();
+		response.close();
+
+		assertEquals(404, status);
+
 	}
 
 	// TODO category
@@ -200,13 +232,64 @@ public class OnlineShoppingWebServiceTest {
 	@Test
 	public void getReviewsForItem() {
 		_logger.info("TEST: getReviewsForItem");
-		Set<Review> reviews = _client.target(WEB_SERVICE_URI + "/{id}/review")
+		Set<Review> reviews = _client
+				.target(WEB_SERVICE_URI + "/item/{id}/review")
 				.resolveTemplate("id", 1).request()
 				.accept(MediaType.APPLICATION_XML)
 				.get(new GenericType<Set<Review>>() {
 				});
-		
+
 		assertEquals(2, reviews.size());
+	}
+
+	// ----------------------------- CUSTOMER TESTS ----------------------------
+
+	/**
+	 * Test to login and logout
+	 */
+	@Test
+	public void loginAndLogout() {
+		_logger.info("TEST: login");
+
+		String username = "x_sniper360noscope_x";
+
+		Response response = _client.target(WEB_SERVICE_URI + "/customer/login")
+				.request().post(Entity.xml(username));
+
+		Map<String, NewCookie> cookies = response.getCookies();
+		response.close();
+
+		assertFalse(cookies.isEmpty());
+
+		NewCookie usernameCookie = cookies.get("username");
+		assertEquals(username, usernameCookie.getValue());
+
+		response = _client.target(WEB_SERVICE_URI + "/customer/logout")
+				.request().cookie(usernameCookie).get();
+		cookies = response.getCookies();
+		response.close();
+
+		// Max age is 0 means deleted
+		assertEquals(0, cookies.get("username").getMaxAge());
+
+	}
+
+	/**
+	 * Testing a bad login (400)
+	 */
+	@Test
+	public void badLogin() {
+		_logger.info("TEST: badLogin");
+
+		String username = "does-not-exist";
+
+		Response response = _client.target(WEB_SERVICE_URI + "/customer/login")
+				.request().post(Entity.xml(username));
+
+		int status = response.getStatus();
+		response.close();
+
+		assertEquals(400, status);
 	}
 
 }
