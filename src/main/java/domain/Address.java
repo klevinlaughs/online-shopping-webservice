@@ -6,6 +6,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @Embeddable
@@ -105,5 +108,26 @@ public class Address {
 				.append(suburb + " ").append(city + " ").append(country + " ")
 				.append(zipCode + " ").append("}");
 		return sb.toString();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Address))
+			return false;
+		if (obj == this)
+			return true;
+
+		Address rhs = (Address) obj;
+		return new EqualsBuilder().append(number, rhs.number)
+				.append(street, rhs.street).append(suburb, rhs.suburb)
+				.append(city, rhs.city).append(country, rhs.country)
+				.append(zipCode, rhs.zipCode).isEquals();
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(17, 31).append(number).append(street)
+				.append(suburb).append(city).append(country).append(zipCode)
+				.toHashCode();
 	}
 }
