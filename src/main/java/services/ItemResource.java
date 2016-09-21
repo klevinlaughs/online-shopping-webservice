@@ -12,6 +12,7 @@ import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -87,8 +88,9 @@ public class ItemResource {
 
 		_logger.info("Getting item count");
 
-		Long itemCount = em.createQuery("select count(*) from Item item",
-				Long.class).getSingleResult();
+		Long itemCount = em
+				.createQuery("select count(*) from Item item", Long.class)
+				.getSingleResult();
 
 		_logger.info("Item count: " + itemCount);
 
@@ -97,43 +99,8 @@ public class ItemResource {
 
 		URI uri = uriInfo.getAbsolutePath();
 
-		_logger.info("URI: " + uri.toString());
-
-		Link previous = null;
-		Link next = null;
-
-		if (start > 0) {
-			_logger.info("Making previous link...");
-			// There are previous Items
-			int newStart;
-			if (start > size) {
-				// Start is greater than size, even more previous items
-				// afterwards
-				newStart = start - size;
-			} else {
-				// Start is equal to or less than size, no more previous items
-				// afterwards
-				newStart = 0;
-			}
-			// Use default size if reached the end :(
-			int newSize = start + size >= itemCount ? 5 : size;
-			previous = Link.fromUri(uri + "?start={start}&size={size}")
-					.rel("previous").build(newStart, newSize);
-		}
-		if (start + size < itemCount) {
-			// There are more items
-			_logger.info("Making next link...");
-			int nextSize;
-			if (start + 2 * size <= itemCount) {
-				// Next step has even more items after
-				nextSize = 5;
-			} else {
-				// Next step doesn't have anymore after
-				nextSize = (int) (itemCount - start - size);
-			}
-			next = Link.fromUri(uri + "?start={start}&size={size}").rel("next")
-					.build(start + size, nextSize);
-		}
+		Link previous = createPreviousHATEOAS(start, size, 5, itemCount, uri);
+		Link next = createNextHATEOAS(start, size, 5, itemCount, uri);
 
 		_logger.info("Querying items...");
 
@@ -146,7 +113,8 @@ public class ItemResource {
 			_logger.info("Item retrieved: " + item);
 		}
 
-		GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {
+		GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(
+				items) {
 		};
 
 		ResponseBuilder builder = Response.ok(entity);
@@ -156,11 +124,7 @@ public class ItemResource {
 		if (next != null) {
 			builder.links(next);
 		}
-		Response response = builder.build();
-
-		_logger.info("Returning response...");
-
-		return response;
+		return builder.build();
 	}
 
 	/**
@@ -185,9 +149,16 @@ public class ItemResource {
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_XML)
 	public Item getItemById(@PathParam("id") long id) {
+
 		em.getTransaction().begin();
 		Item item = em.find(Item.class, id);
+		_logger.info("Item found: " + item);
 		em.getTransaction().commit();
+
+		if (item == null) {
+			throw new NotFoundException(
+					"Item with id:" + id + " does not exist");
+		}
 
 		return item;
 	}
@@ -219,19 +190,21 @@ public class ItemResource {
 		em.getTransaction().begin();
 		List<Review> reviews = em
 				.createQuery("SELECT r FROM Review r WHERE r.item.id = :id",
-						Review.class).setParameter("id", id).getResultList();
+						Review.class)
+				.setParameter("id", id).getResultList();
 		em.getTransaction().commit();
 
 		return reviews;
 	}
 
 	/**
-	 * Gets the deals of the day
 	 * 
 	 * @param start
 	 *            - the starting index (default 1)
 	 * @param size
 	 *            - the amount of deals to get (default 3)
+	 * @param category
+	 *            - the category
 	 * @param uriInfo
 	 * @return
 	 */
@@ -251,6 +224,79 @@ public class ItemResource {
 
 		ResponseBuilder builder = Response.ok();
 		return builder.build();
+	}
+
+	/**
+	 * Helper method for previous HATEOAS links
+	 * 
+	 * @param start
+	 *            the starting index
+	 * @param size
+	 *            the interval size
+	 * @param defaultSize
+	 *            the default interval size
+	 * @param count
+	 *            the total number of elements available
+	 * @param uri
+	 *            the original uri from which the new one will be made
+	 * @return
+	 */
+	private Link createPreviousHATEOAS(int start, int size, int defaultSize,
+			Long count, URI uri) {
+		if (start > 0) {
+			_logger.info("Making previous link for " + uri);
+			// There are previous Items
+			int newStart;
+			if (start > size) {
+				// Start is greater than size, even more previous items
+				// afterwards
+				newStart = start - size;
+			} else {
+				// Start is equal to or less than size, no more previous items
+				// afterwards
+				newStart = 0;
+			}
+			// Use default size if reached the end :(
+			int newSize = start + size >= count ? defaultSize : size;
+			return Link.fromUri(uri + "?start={start}&size={size}")
+					.rel("previous").build(newStart, newSize);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Helper method for next HATEOAS links
+	 * 
+	 * @param start
+	 *            the starting index
+	 * @param size
+	 *            the interval size
+	 * @param defaultSize
+	 *            the default interval size
+	 * @param count
+	 *            the total number of elements available
+	 * @param uri
+	 *            the original uri from which the new one will be made
+	 * @return
+	 */
+	private Link createNextHATEOAS(int start, int size, int defaultSize,
+			Long count, URI uri) {
+		if (start + size < count) {
+			// There are more items
+			_logger.info("Making next link...");
+			int nextSize;
+			if (start + 2 * size <= count) {
+				// Next step has even more items after
+				nextSize = size;
+			} else {
+				// Next step doesn't have anymore after
+				nextSize = (int) (count - start - size);
+			}
+			return Link.fromUri(uri + "?start={start}&size={size}").rel("next")
+					.build(start + size, nextSize);
+		}
+		return null;
 	}
 
 	/**
